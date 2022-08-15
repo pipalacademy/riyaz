@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ course.title }}
+{% endblock %}
+
+{% macro Avatar(url) %}
+<span class="small-avatar"><img class="border border-light" src="{{ url }}"></span>
+{% endmacro %}
+
+{% macro CourseHeader(course) %}
+<div class="py-5">
+    <h1 class="card-title">{{ course.title }}</h1>
+    <h6 class="card-subtitle mb-4 text-muted">{{ course.short_description }}</h6>
+
+    <div>
+        {% for author in course.authors %}
+
+        <div class="d-flex align-items-center mb-2">
+            <span class="me-2">
+                {{ Avatar(author.photo) }}
+            </span>
+            {{ author.name }}
+        </div>
+
+        {% endfor %}
+    </div>
+</div>
+{% endmacro %}
+
+{% block content %}
+<div class="text-bg-dark">
+    <div class="container">
+        {{ CourseHeader(course) }}
+    </div>
+</div>
+{% endblock %}
