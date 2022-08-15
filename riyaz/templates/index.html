@@ -1,19 +1,31 @@
 {% extends "base.html" %}
 
+{% macro Course(course) %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">{{ course.title }}</h5>
+        <h6 class="card-subtitle mb-2 text-muted">By {{ course.authors|map(attribute='name')|join(',') }}</h6>
+        <p>{{ course.short_description }}</p>
+        <a href="#" class="btn btn-primary">Take this course</a>
+    </div>
+</div>
+{% endmacro %}
+
 {% block content %}
 
-{% for course in courses %}
-<h3>{{ course.title }}</h3>
-<ul>
-    <li><strong>Name: </strong>{{ course.name }}</li>
-    <li><strong>Authors: </strong>
-        <ul>
-            {% for author in course.authors %}
-            {{ author.name }}
+<div class="container">
+
+    <div id="explore-courses">
+        <h2 class="my-3">Explore courses <a class="text-decoration-none link-primary" href="#">&#x2192;</a></h2>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3">
+            {% for course in courses %}
+            <div class="col">
+                {{ Course(course) }}
+            </div>
             {% endfor %}
-        </ul>
-    </li>
-</ul>
-{% endfor %}
+        </div>
+    </div>
+
+</div>
 
 {% endblock %}
