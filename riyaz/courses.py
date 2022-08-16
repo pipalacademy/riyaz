@@ -40,4 +40,47 @@ alpha.alpha("hello, world")
                 "photo": "https://thispersondoesnotexist.com/image",
             },
         ],
+        "outline": [
+            {
+                "module": {
+                    "name": "uno-module",
+                    "title": "Uno Module",
+                },
+                "lessons": [
+                    {
+                        "id": "84517dac-33af-4cb7-8dff-7acc1fadb360",
+                        "name": "onnu",
+                        "title": "Onnu Lesson",
+                    },
+                    {
+                        "id": "84517dac-33af-4cb7-8dff-7acc1fadb360",
+                        "name": "rendu",
+                        "title": "Rendu Lesson",
+                    },
+                    {
+                        "id": "84517dac-33af-4cb7-8dff-7acc1fadb360",
+                        "name": "moonu",
+                        "title": "Moonu Lesson",
+                    },
+                ],
+            },
+            {
+                "module": {
+                    "name": "dos-module",
+                    "title": "Dos Module"
+                },
+                "lessons": [
+                    {
+                        "id": "84517dac-33af-4cb7-8dff-7acc1fadb360",
+                        "name": "naalu-lesson",
+                        "title": "Naalu Lesson",
+                    },
+                    {
+                        "id": "84517dac-33af-4cb7-8dff-7acc1fadb360",
+                        "name": "anju-lesson",
+                        "title": "Anju Lesson",
+                    },
+                ]
+            }
+        ],
     }

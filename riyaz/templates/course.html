@@ -34,8 +34,24 @@
 {% endmacro %}
 
 {% macro CourseOutline(course) %} 
-<h2>Course outline</h2>
-<p>{{ course.about }}</p>
+<h2 class="mb-3">Course outline</h2>
+<div>
+    {% for part in course.outline %}
+    {% set module, lessons = part.module, part.lessons %}
+    <div class="card text-bg-light mb-3">
+        <div class="card-header">
+            <h6 id="{{ module.name }}" class="mb-0">{{ module.title }}</h6>
+        </div>
+        <ol class="list-group list-group-flush">
+            {% for lesson in lessons %}
+            <li class="list-group-item ps-4">
+                <a class="card-link text-decoration-none" href="#{{ module.name }}">{{ lesson.title }}</a>
+            </li>
+            {% endfor %}
+        </ol>
+    </div>
+    {% endfor %}
+</div>
 {% endmacro %}
 
 {% macro CourseInstructors(course) %} 

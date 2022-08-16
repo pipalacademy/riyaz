@@ -56,6 +56,6 @@ def index():
     return render_template("index.html", courses=placeholder_courses)
 
 
-@app.template_filter('markdown')
+@app.template_filter("markdown")
 def md_to_html(md: str):
     return markdown.markdown(md, extensions=["fenced_code"])
