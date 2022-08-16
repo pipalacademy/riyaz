@@ -11,17 +11,20 @@
 {% macro CourseHeader(course) %}
 <div class="py-5">
     <h1 class="card-title">{{ course.title }}</h1>
-    <h6 class="card-subtitle mb-4 text-muted">{{ course.short_description }}</h6>
+    <h6 class="card-subtitle mb-5 text-muted">{{ course.short_description }}</h6>
 
+    <h6 class="card-subtitle mb-1">Instructors:</h6>
     <div>
-        {% for author in course.authors %}
+        {% for instructor in course.authors %}
 
-        <div class="d-flex align-items-center mb-2">
-            <span class="me-2">
-                {{ Avatar(author.photo) }}
-            </span>
-            {{ author.name }}
-        </div>
+        <a class="text-decoration-none text-light" href="#author-{{ instructor.id }}">
+            <div class="d-flex align-items-center mb-1">
+                <span class="me-2">
+                    {{ Avatar(instructor.photo) }}
+                </span>
+                {{ instructor.name }}
+            </div>
+        </a>
 
         {% endfor %}
     </div>
@@ -58,7 +61,7 @@
 <h2 class="mb-3">Instructors</h2>
 <div>
     {% for instructor in course.authors %}
-    <div class="row mb-3">
+    <div id="author-{{ instructor.id }}" class="row mb-3">
         <div class="col-12 col-sm-4 col-md-2 text-center">
             <img class="rounded-circle" style="max-height: 256px; height: 100%; max-width: 256px; width: 100%;" src="{{ instructor.photo }}" />
         </div>
