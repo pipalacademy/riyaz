@@ -13,7 +13,11 @@ def view_course(name: str):
 @bp.route("/<course_name>/<module_name>/<lesson_name>")
 def view_lesson(course_name: str, module_name: str, lesson_name: str):
     course = get_course(name=course_name)
-    lesson = get_lesson(course_id=course["id"], module_name=module_name, lesson_name=lesson_name)
+    lesson = get_lesson(
+        course_id=course["id"],
+        module_name=module_name,
+        lesson_name=lesson_name,
+    )
 
     return render_template("lesson.html", course=course, lesson=lesson)
 
@@ -81,10 +85,7 @@ built [projects](#) in Alpha, and has talked about it at events.
                 ],
             },
             {
-                "module": {
-                    "name": "dos-module",
-                    "title": "Dos Module"
-                },
+                "module": {"name": "dos-module", "title": "Dos Module"},
                 "lessons": [
                     {
                         "id": "84517dac-33af-4cb7-8dff-7acc1fadb360",
@@ -96,8 +97,8 @@ built [projects](#) in Alpha, and has talked about it at events.
                         "name": "anju-lesson",
                         "title": "Anju Lesson",
                     },
-                ]
-            }
+                ],
+            },
         ],
     }
 
