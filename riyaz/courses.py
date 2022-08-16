@@ -16,6 +16,18 @@ def get_course(name):
         "name": "alpha-course",
         "title": "Alpha Course",
         "short_description": "A course on Alpha",
+        "description": """\
+This is a description of the **Alpha Course**. It is a *course
+about Alpha*. `Alpha` is very useful.
+
+You can use it like:
+
+```
+import alpha
+
+alpha.alpha("hello, world")
+```
+        """,
         "authors": [
             {
                 "id": "ab8bcec7-b384-46b6-b496-0d6df4615a3e",

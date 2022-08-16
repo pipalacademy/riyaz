@@ -28,10 +28,41 @@
 </div>
 {% endmacro %}
 
+{% macro CourseAbout(course) %} 
+<h2>About this course</h2>
+<p>{{ course.description|markdown|safe }}</p>
+{% endmacro %}
+
+{% macro CourseOutline(course) %} 
+<h2>Course outline</h2>
+<p>{{ course.about }}</p>
+{% endmacro %}
+
+{% macro CourseInstructors(course) %} 
+<h2>Instructors</h2>
+<p>{{ course.authors|map(attribute='name')|join(',') }}</p>
+{% endmacro %}
+
+{% macro CourseInfo(course) %}
+<div class="mb-4">
+    {{ CourseAbout(course) }}
+</div>
+<div class="mb-4">
+    {{ CourseOutline(course) }}
+</div>
+<div class="mb-4">
+    {{ CourseInstructors(course) }}
+</div>
+{% endmacro %}
+
 {% block content %}
 <div class="text-bg-dark">
     <div class="container">
         {{ CourseHeader(course) }}
     </div>
+</div>
+
+<div class="container pt-4">
+    {{ CourseInfo(course) }}
 </div>
 {% endblock %}
