@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ lesson.title }}
+{% endblock %}
+
+{% macro Breadcrumbs(course) %}
+<nav>
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+            <a class="text-light" href="{{ courses_page }}">All Courses</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a class="text-light" href="/courses/{{ course.name }}">{{ course.title }}</a>
+        </li>
+    </ol>
+</nav>
+{% endmacro %}
+
+{% macro LessonIndex(module, lesson) -%}
+{{ module.index }}.{{ lesson.index }}
+{%- endmacro %}
+
+{% macro LessonHeader(course, lesson) %}
+{% set module = lesson.module %}
+
+<div class="text-bg-dark">
+    <div class="container">
+        <div class="pt-3 pb-4">
+            {{ Breadcrumbs(course) }}
+        </div>
+
+        <div class="pt-3 pb-2">
+            <h6 class="text-muted mb-0">{{ module.title }}</h6>
+            <h1>{{ LessonIndex(module, lesson) }} {{ lesson.title }}</h1>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro LessonBody(lesson) %}
+<div class="container py-3">
+    {{ lesson.content|markdown|safe }}
+</div>
+{% endmacro %}
+
+{% macro LessonFooter(course, lesson) %}
+{% set module = lesson.module %}
+<div class="text-bg-dark">
+    <div class="container py-4">
+        <div class="d-flex justify-content-between">
+            <div class="text-start">
+                {% if lesson.previous %}
+                <a class="text-light text-decoration-none" href="/courses/{{ course.name }}/{{ module.name }}/{{ lesson.previous.name }}">&#x2190; Previous</a>
+                <div class="text-muted">
+                    {{ LessonIndex(lesson.module, lesson.previous) }} {{ lesson.previous.title }}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="text-end">
+                {% if lesson.next %}
+                <a class="text-light text-decoration-none" href="/courses/{{ course.name }}/{{ module.name }}/{{ lesson.next.name }}">Next &#x2192;</a>
+                <div class="text-muted">
+                    {{ LessonIndex(lesson.module, lesson.next) }} {{ lesson.next.title }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% block content %}
+{% set courses_page = "/" %}
+
+{{ LessonHeader(course, lesson) }}
+
+<div class="my-3">
+    {{ LessonBody(lesson) }}
+</div>
+
+{{ LessonFooter(course, lesson) }}
+{% endblock %}

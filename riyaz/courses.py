@@ -10,6 +10,14 @@ def view_course(name: str):
     return render_template("course.html", course=course)
 
 
+@bp.route("/<course_name>/<module_name>/<lesson_name>")
+def view_lesson(course_name: str, module_name: str, lesson_name: str):
+    course = get_course(name=course_name)
+    lesson = get_lesson(course_id=course["id"], module_name=module_name, lesson_name=lesson_name)
+
+    return render_template("lesson.html", course=course, lesson=lesson)
+
+
 def get_course(name):
     return {
         "id": "a1afe86d-8a99-489e-b3f8-7d2be764a857",
@@ -91,4 +99,44 @@ built [projects](#) in Alpha, and has talked about it at events.
                 ]
             }
         ],
+    }
+
+
+def get_lesson(course_id: str, module_name: str, lesson_name: str):
+    return {
+        "id": "84517dac-33af-4cb7-8dff-7acc1fadb360",
+        "name": "rendu-lesson",
+        "title": "Rendu Lesson",
+        "index": 2,
+        "content": """\
+# Rendu Lesson
+
+Hello world.
+
+This is how we use the `print` function:
+
+```python
+print("Hello, world!")
+```
+
+In markdown, you can use **bold**, *italic*, `code` and
+more.
+""",
+        "module": {
+            "name": "uno-module",
+            "title": "Uno Module",
+            "index": 1,
+        },
+        "previous": {
+            "id": "84517dac-33af-4cb7-8dff-7acc1fadb360",
+            "name": "onnu-lesson",
+            "title": "Onnu Lesson",
+            "index": 1,
+        },
+        "next": {
+            "id": "84517dac-33af-4cb7-8dff-7acc1fadb360",
+            "name": "moonu-lesson",
+            "title": "Moonu Lesson",
+            "index": 3,
+        },
     }
