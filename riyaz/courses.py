@@ -33,11 +33,19 @@ alpha.alpha("hello, world")
                 "id": "ab8bcec7-b384-46b6-b496-0d6df4615a3e",
                 "name": "Alice",
                 "photo": "https://thispersondoesnotexist.com/image",
+                "about": """\
+Alice is an instructor with fulana years of experience. She has
+built [projects](#) in Alpha, and has talked about it at events.
+                """,
             },
             {
                 "id": "84517dac-33af-4cb7-8dff-7acc1fadb360",
                 "name": "Chuck",
                 "photo": "https://thispersondoesnotexist.com/image",
+                "about": """\
+Alice is an instructor with fulana years of experience. She has
+built [projects](#) in Alpha, and has talked about it at events.
+                """,
             },
         ],
         "outline": [

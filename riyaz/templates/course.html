@@ -55,8 +55,22 @@
 {% endmacro %}
 
 {% macro CourseInstructors(course) %} 
-<h2>Instructors</h2>
-<p>{{ course.authors|map(attribute='name')|join(',') }}</p>
+<h2 class="mb-3">Instructors</h2>
+<div>
+    {% for instructor in course.authors %}
+    <div class="row mb-3">
+        <div class="col-12 col-sm-4 col-md-2 text-center">
+            <img class="rounded-circle" style="max-height: 256px; height: 100%; max-width: 256px; width: 100%;" src="{{ instructor.photo }}" />
+        </div>
+        <div class="col">
+            <div class="pt-3">
+                <h5>{{ instructor.name }}</h5>
+                <p>{{ instructor.about|markdown|safe }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {% endmacro %}
 
 {% macro CourseInfo(course) %}
