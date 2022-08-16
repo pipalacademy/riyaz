@@ -50,6 +50,14 @@ verify_sqlite_version()
 def get_connection():
     return apsw.Connection(config.database_path)
 
+_models = {}
+
+def register_model(doctype, klass):
+    _models[doctype] = klass
+
+def get_model(doctype):
+    return _models.get(doctype, Document)
+
 class Document:
     def __init__(self, doctype, key, data, id=None):
         self.__dict__['id'] = id
@@ -137,7 +145,8 @@ class DBQuery:
     def process_row(self, row):
         _id, doctype, key, data = row
         data = json.loads(data)
-        return Document(doctype, key, data, id=_id)
+        klass = get_model(doctype)
+        return klass(doctype, key, data, id=_id)
 
 def get(doctype: str, key: str) -> Optional[Document]:
     """Returns a document from database.
