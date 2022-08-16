@@ -18,7 +18,13 @@ Step 2: install python dependencies
 $ pip install -r requirements.txt dev-requirements.txt
 ```
 
-Step 3: run the app
+Step 3: load sample data
+
+```
+$ python run.py --load-sample-data
+```
+
+Step 4: run the app
 
 ```
 $ FLASK_APP=riyaz.app:app flask run

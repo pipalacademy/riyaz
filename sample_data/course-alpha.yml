@@ -1,0 +1,46 @@
+doctype: course
+key: "alpha-course"
+title: "Alpha Course"
+short_description: "A course on Alpha"
+description: >
+  This is a description of the **Alpha Course**. It is a *course about Alpha*. `Alpha` is very useful.
+
+  You can use it like:
+
+  ```
+  import alpha
+
+  alpha.alpha("hello, world")
+  ```
+authors:
+  - name: "Alice"
+    photo: "https://thispersondoesnotexist.com/image"
+    about: |
+      Alice is an instructor with fulana years of experience.
+      She has built [projects](#) in Alpha, and has talked about it at events.
+  - name: "Chuck"
+    photo: "https://thispersondoesnotexist.com/image"
+    about: |
+      Alice is an instructor with fulana years of experience.
+      She has built [projects](#) in Alpha, and has talked about it at events.
+outline:
+  - module:
+      name: "uno-module"
+      title: "Uno Module"
+    lessons:
+      - name: "onnu"
+        title: "Onnu Lesson"
+      - name: "rendu"
+        title: "Rendu Lesson"
+      - name: "moonu"
+        title: "Moonu Lesson"
+  - module:
+      name: "dos-module"
+      title: "Dos Module"
+    lessons:
+      - name: "naalu-lesson"
+        title: "Naalu Lesson"
+      - name: "anju-lesson"
+        title: "Anju Lesson"
+      - name: "moonu"
+        title: "Moonu Lesson"

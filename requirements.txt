@@ -1,3 +1,4 @@
 flask==2.2.2
 markdown==3.4.1
 apsw>=3.39
+pyyaml
