@@ -2,7 +2,7 @@ doctype: course
 key: "alpha-course"
 title: "Alpha Course"
 short_description: "A course on Alpha"
-description: >
+description: |
   This is a description of the **Alpha Course**. It is a *course about Alpha*. `Alpha` is very useful.
 
   You can use it like:
