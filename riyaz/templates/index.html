@@ -6,7 +6,7 @@
         <h5 class="card-title">{{ course.title }}</h5>
         <h6 class="card-subtitle mb-2 text-muted">By {{ course.authors|map(attribute='name')|join(',') }}</h6>
         <p>{{ course.short_description }}</p>
-        <a href="#" class="btn btn-primary">Take this course</a>
+        <a href="/courses/{{ course.name }}" class="btn btn-primary">Take this course</a>
     </div>
 </div>
 {% endmacro %}
