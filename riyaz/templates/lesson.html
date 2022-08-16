@@ -18,6 +18,12 @@
 </nav>
 {% endmacro %}
 
+{% macro CourseOutlineIcon() %}
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-list-nested" viewBox="0 0 16 16">
+  <path fill-rule="evenodd" d="M4.5 11.5A.5.5 0 0 1 5 11h10a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 1 3h10a.5.5 0 0 1 0 1H1a.5.5 0 0 1-.5-.5z"/>
+</svg>
+{% endmacro %}
+
 {% macro LessonIndex(module, lesson) -%}
 {{ module.index }}.{{ lesson.index }}
 {%- endmacro %}
@@ -27,14 +33,24 @@
 
 <div class="text-bg-dark">
     <div class="container">
+
         <div class="pt-3 pb-4">
             {{ Breadcrumbs(course) }}
         </div>
 
-        <div class="pt-3 pb-2">
-            <h6 class="text-muted mb-0">{{ module.title }}</h6>
-            <h1>{{ LessonIndex(module, lesson) }} {{ lesson.title }}</h1>
+        <div class="d-md-flex justify-content-between pt-3 pb-2">
+            <div>
+                <h6 class="text-muted mb-0">{{ module.title }}</h6>
+                <h1>{{ LessonIndex(module, lesson) }} {{ lesson.title }}</h1>
+            </div>
+            <div class="d-md-flex align-items-end mb-2">
+                <a class="text-light w-100" href="/courses/{{ course.key }}#course-outline">
+                    <span class="d-none d-md-inline" style="width: 28px;">{{ CourseOutlineIcon() }}</span>
+                    <span class="d-md-none">Course outline</span>
+                </a>
+            </div>
         </div>
+
     </div>
 </div>
 {% endmacro %}

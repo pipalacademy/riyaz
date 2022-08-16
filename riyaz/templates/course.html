@@ -32,12 +32,12 @@
 {% endmacro %}
 
 {% macro CourseAbout(course) %} 
-<h2>About this course</h2>
+<h2 id="about-this-course">About this course</h2>
 <p>{{ course.description|markdown|safe }}</p>
 {% endmacro %}
 
 {% macro CourseOutline(course) %} 
-<h2 class="mb-3">Course outline</h2>
+<h2 id="course-outline" class="mb-3">Course outline</h2>
 <div>
     {% for part in course.outline %}
     {% set module, lessons = part.module, part.lessons %}
@@ -58,7 +58,7 @@
 {% endmacro %}
 
 {% macro CourseInstructors(course) %} 
-<h2 class="mb-3">Instructors</h2>
+<h2 id="instructors" class="mb-3">Instructors</h2>
 <div>
     {% for instructor in course.authors %}
     <div id="author-{{ instructor.id }}" class="row mb-3">
