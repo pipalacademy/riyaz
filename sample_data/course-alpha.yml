@@ -25,22 +25,22 @@ authors:
       She has built [projects](#) in Alpha, and has talked about it at events.
 outline:
   - module:
-      name: "uno-module"
+      key: "uno-module"
       title: "Uno Module"
     lessons:
-      - name: "onnu"
+      - key: "uno-module/onnu-lesson"
         title: "Onnu Lesson"
-      - name: "rendu"
+      - key: "uno-module/rendu-lesson"
         title: "Rendu Lesson"
-      - name: "moonu"
+      - key: "uno-module/moonu-lesson"
         title: "Moonu Lesson"
   - module:
-      name: "dos-module"
+      key: "dos-module"
       title: "Dos Module"
     lessons:
-      - name: "naalu-lesson"
+      - key: "dos-module/naalu-lesson"
         title: "Naalu Lesson"
-      - name: "anju-lesson"
+      - key: "dos-module/anju-lesson"
         title: "Anju Lesson"
-      - name: "moonu"
+      - key: "dos-module/moonu-lesson"
         title: "Moonu Lesson"

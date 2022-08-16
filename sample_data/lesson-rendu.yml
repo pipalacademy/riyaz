@@ -1,0 +1,18 @@
+doctype: lesson
+key: "uno-module/rendu-lesson"
+course: "alpha-course"
+title: "Rendu Lesson"
+index: 2
+content: |
+  # Rendu Lesson
+
+  Hello world.
+
+  This is how we use the `print` function:
+
+  ```python
+  print("Hello, world!")
+  ```
+
+  In markdown, you can use **bold**, *italic*, `code` and
+  more.

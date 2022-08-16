@@ -11,7 +11,7 @@
             <a class="text-light" href="{{ courses_page }}">All Courses</a>
         </li>
         <li class="breadcrumb-item">
-            <a class="text-light" href="/courses/{{ course.name }}">{{ course.title }}</a>
+            <a class="text-light" href="/courses/{{ course.key }}">{{ course.title }}</a>
         </li>
     </ol>
 </nav>
@@ -51,7 +51,7 @@
         <div class="d-flex justify-content-between">
             <div class="text-start">
                 {% if lesson.previous %}
-                <a class="text-light text-decoration-none" href="/courses/{{ course.name }}/{{ module.name }}/{{ lesson.previous.name }}">&#x2190; Previous</a>
+                <a class="text-light text-decoration-none" href="/courses/{{ course.key }}/{{ lesson.previous.key }}">&#x2190; Previous</a>
                 <div class="text-muted">
                     {{ LessonIndex(lesson.module, lesson.previous) }} {{ lesson.previous.title }}
                 </div>
@@ -60,7 +60,7 @@
 
             <div class="text-end">
                 {% if lesson.next %}
-                <a class="text-light text-decoration-none" href="/courses/{{ course.name }}/{{ module.name }}/{{ lesson.next.name }}">Next &#x2192;</a>
+                <a class="text-light text-decoration-none" href="/courses/{{ course.key }}/{{ lesson.next.key }}">Next &#x2192;</a>
                 <div class="text-muted">
                     {{ LessonIndex(lesson.module, lesson.next) }} {{ lesson.next.title }}
                 </div>

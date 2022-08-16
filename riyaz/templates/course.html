@@ -43,12 +43,12 @@
     {% set module, lessons = part.module, part.lessons %}
     <div class="card text-bg-light mb-3">
         <div class="card-header">
-            <h6 id="{{ module.name }}" class="mb-0">{{ module.title }}</h6>
+            <h6 id="{{ module.key }}" class="mb-0">{{ module.title }}</h6>
         </div>
         <ol class="list-group list-group-flush">
             {% for lesson in lessons %}
             <li class="list-group-item ps-4">
-                <a class="card-link text-decoration-none" href="#{{ module.name }}">{{ lesson.title }}</a>
+                <a class="card-link text-decoration-none" href="/courses/{{ course.key }}/{{ lesson.key }}">{{ lesson.title }}</a>
             </li>
             {% endfor %}
         </ol>
