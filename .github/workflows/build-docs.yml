@@ -22,7 +22,6 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools mkdocs-material
-          python setup.py develop
       - name: Build
         run: |
           python -m mkdocs build --clean --verbose
