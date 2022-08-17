@@ -1,6 +1,6 @@
 # riyaz
 
-Toolkit to create interactive courses with live coding examples and exercises.
+Riyaz is a light-weight, self-hostable learning platform.
 
 ## How to use
 
@@ -27,7 +27,7 @@ $ python run.py --load-sample-data
 Step 4: run the app
 
 ```
-$ FLASK_APP=riyaz.app:app flask run
+$ python run.py
 ```
 
 
