@@ -73,3 +73,58 @@ def test_query():
     keys = [doc.key for doc in docs]
     assert keys == ['3', '9']
 
+def test_Document_save():
+    class Number(db.Document):
+        DOCTYPE = "number"
+
+    Number("one", {"value": 1}).save()
+    doc = Number.find(key="one")
+    assert doc is not None
+    assert doc.value == 1
+
+def test_Document_find():
+    class Number(db.Document):
+        DOCTYPE = "number"
+
+    Number("one", {"value": 1, "square": 1}).save()
+    Number("two", {"value": 2, "square": 4}).save()
+
+    doc = Number.find(key="one")
+    assert doc is not None
+    assert doc.value == 1
+
+    doc = Number.find(square=4)
+    assert doc is not None
+    assert doc.key == "two"
+    assert doc.value == 2
+
+    assert Number.find(key="three") is None
+    assert Number.find(square=9) is None
+
+def test_Document_find_all():
+    class Number(db.Document):
+        DOCTYPE = "number"
+
+    Number("one", {"value": 1, "parity": "odd"}).save()
+    Number("two", {"value": 2, "parity": "even"}).save()
+    Number("three", {"value": 3, "parity": "odd"}).save()
+    Number("four", {"value": 4, "parity": "even"}).save()
+
+    # having a db.Document with the same key should not alter our results
+    db.Document("one", {"value": 1, "parity": "odd"}).save()
+
+    docs = Number.find_all()
+    keys = {doc.key for doc in docs}
+    assert keys == {'one', 'two', 'three', 'four'}
+
+    docs = Number.find_all(parity='odd')
+    keys = {doc.key for doc in docs}
+    assert keys == {'one', 'three'}
+
+    docs = Number.find_all(parity='even')
+    keys = {doc.key for doc in docs}
+    assert keys == {'two', 'four'}
+
+    docs = Number.find_all(parity='strange')
+    keys = {doc.key for doc in docs}
+    assert keys == set()

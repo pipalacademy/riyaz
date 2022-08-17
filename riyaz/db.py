@@ -29,6 +29,7 @@ This is inspired by Infogami[1][2] and FriendFeed database[3].
 [2]: https://github.com/openlibrary/infogami
 [3]: https://backchannel.org/blog/friendfeed-schemaless-mysql
 """
+from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 import re
@@ -52,16 +53,18 @@ def get_connection():
 
 _models = {}
 
-def register_model(doctype, klass):
-    _models[doctype] = klass
+def register_model(klass):
+    _models[klass.DOCTYPE] = klass
 
 def get_model(doctype):
     return _models.get(doctype, Document)
 
 class Document:
-    def __init__(self, doctype, key, data, id=None):
+    DOCTYPE = "document"
+
+    def __init__(self, key, data, id=None, doctype=None):
         self.__dict__['id'] = id
-        self.__dict__['doctype'] = doctype
+        self.__dict__['doctype'] = doctype or self.__class__.DOCTYPE
         self.__dict__['key'] = key
         self.__dict__['data'] = data
 
@@ -89,6 +92,57 @@ class Document:
 
         self.data[key] = value
 
+    @classmethod
+    def find(cls, *, key=None, **q) -> Optional[Document]:
+        """Finds the document matching the query.
+
+        Usage:
+
+            Document("one", {"value": 1, "squaure": 1}).save()
+            Document("two", {"value": 2, "squaure": 4}).save()
+
+            one = Document.find(key="one")
+            two = Document.find(square=4)
+        """
+        if key and not q:
+            return get(cls.DOCTYPE, key)
+        else:
+            if key is not None:
+                q['key'] = key
+            return find(cls.DOCTYPE, **q)
+
+    @classmethod
+    def find_all(cls, **q) -> List[Document]:
+        """Finds all the documents matching the given query.
+
+        Usage:
+
+            class Number(Document):
+                DOCTYPE = "number"
+
+            // all numbers
+            numbers = Number.find_all()
+
+            // even numbers
+            numbers = Number.find_all(parity="even")
+        """
+        return query(cls.DOCTYPE, **q)
+
+    def save(self):
+        """Saves the document.
+
+        Usage:
+            doc = Document.find(key="counter")
+            doc.count += 1
+            doc.save()
+
+        """
+        doc = save(self.doctype, self.key, self.data)
+
+        # update the id when the document is saved for the first time
+        if self.id is None:
+            self.id = doc.id
+
 RE_FIELD = re.compile(r"^\w+$")
 
 @dataclass
@@ -97,6 +151,8 @@ class DBQuery:
     table: str = "document"
     where_clauses: List[str] = field(default_factory=list)
     params: List[Any] = field(default_factory=list)
+    limit: Optional[int] = None
+    offset: Optional[int] = None
 
     def clone(self):
         return DBQuery(self.table, list(self.where_clauses), list(self.params))
@@ -132,13 +188,24 @@ class DBQuery:
         sql = "SELECT id, doctype, key, data FROM document"
         if self.where_clauses:
             sql += " WHERE " + " AND ".join(self.where_clauses)
-        return sql
+
+        params = list(self.params)
+
+        if self.limit is not None:
+            sql += " LIMIT ?"
+            params.append(self.limit)
+
+        if self.offset is not None:
+            sql += " LIMIT ?"
+            params.append(self.offset)
+        return sql, params
 
     def execute(self, con):
-        sql = self.make_query()
+        sql, params = self.make_query()
         print("execute:", sql)
+        print("params:", params)
         cur = con.cursor()
-        cur.execute(sql, self.params)
+        cur.execute(sql, params)
         rows = cur.fetchall()
         return [self.process_row(row) for row in rows]
 
@@ -146,7 +213,7 @@ class DBQuery:
         _id, doctype, key, data = row
         data = json.loads(data)
         klass = get_model(doctype)
-        return klass(doctype, key, data, id=_id)
+        return klass(key, data, id=_id)
 
 def get(doctype: str, key: str) -> Optional[Document]:
     """Returns a document from database.
@@ -170,10 +237,19 @@ def get_many(doctype: str, keys: List[str]) -> List[Document]:
         docs = {doc.key: doc for doc in q.execute(con)}
         return [docs[key] for key in keys]
 
-def query(doctype: str, **where: Dict[str, Any]) -> List[Document]:
+def find(doctype: str, **where: Dict[str, Any]) -> Optional[Document]:
+    """Queries the database to find the first matching document.
+
+    Returns None when there are no matches. Returns any one of matches
+    when there are more than one match.
+    """
+    docs = query(doctype, **where, limit=1)
+    return docs and docs[0] or None
+
+def query(doctype: str, *, limit=None, offset=None, **where: Dict[str, Any]) -> List[Document]:
     """Queries the database and returns the matching documents.
     """
-    q = DBQuery()
+    q = DBQuery(limit=limit, offset=offset)
     q = q.where('doctype', doctype)
     for name, value in where.items():
         q = q.where(name, value)
@@ -195,6 +271,7 @@ def save(doctype: str, key: str, data: Dict[str, Any]) -> Document:
     with get_connection() as con:
         cur = con.cursor()
         print("execute:", q)
+        print("params:", params)
         cur.execute(q, params)
 
     doc = get(doctype, key)
