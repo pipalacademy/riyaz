@@ -15,13 +15,13 @@ def md_to_html(md: str):
 
 @app.route("/")
 def index():
-    courses = Course.all()
+    courses = Course.find_all()
     return render_template("index.html", courses=courses)
 
 
 @app.route("/courses/<name>")
 def view_course(name: str):
-    course = Course.find(name)
+    course = Course.find(key=name)
     if not course:
         abort(404)
 
@@ -30,7 +30,7 @@ def view_course(name: str):
 
 @app.route("/courses/<course_name>/<module_name>/<lesson_name>")
 def view_lesson(course_name: str, module_name: str, lesson_name: str):
-    course = Course.find(course_name)
+    course = Course.find(key=course_name)
     lesson = course and course.get_lesson(module_name, lesson_name)
     if not lesson:
         abort(404)

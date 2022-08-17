@@ -1,6 +1,7 @@
 doctype: lesson
-key: "uno-module/rendu-lesson"
 course: "alpha-course"
+module: "uno-module"
+name: "rendu-lesson"
 title: "Rendu Lesson"
 index: 2
 content: |

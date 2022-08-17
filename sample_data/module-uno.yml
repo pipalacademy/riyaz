@@ -1,4 +1,5 @@
 doctype: module
-key: uno-module
+course: "alpha-course"
+name: uno-module
 title: Uno Module
 index: 1

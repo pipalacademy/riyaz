@@ -1,6 +1,7 @@
 doctype: lesson
-key: "uno-module/moonu-lesson"
 course: "alpha-course"
+module: "uno-module"
+name: "moonu-lesson"
 title: "Moonu Lesson"
 index: 3
 content: |

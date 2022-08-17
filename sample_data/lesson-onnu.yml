@@ -1,6 +1,7 @@
 doctype: lesson
-key: "uno-module/onnu-lesson"
 course: "alpha-course"
+module: "uno-module"
+name: "onnu-lesson"
 title: "Onnu Lesson"
 index: 1
 content: |

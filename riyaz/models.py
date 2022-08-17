@@ -2,32 +2,20 @@
 from . import db
 
 class Course(db.Document):
-    @classmethod
-    def find(cls, key):
-        return db.get("course", key)
-
-    @classmethod
-    def all(cls):
-        return db.query("course")
+    DOCTYPE = "course"
 
     def get_lesson(self, module_name, lesson_name):
-        # TODO: Use self.id or self.key to query from only
-        # those lessons that belong to this course
-        lesson_key = f"{module_name}/{lesson_name}"
-        return db.get("lesson", lesson_key)
+        return Lesson.find(course=self.key, module=module_name, name=lesson_name)
 
 class Module(db.Document):
+    DOCTYPE = "module"
     pass
 
 class Lesson(db.Document):
-    @property
-    def module(self):
-        parts = self.key.split("/", 1)
-        if len(parts) == 2:
-            module_key = parts[0]
-            return db.get("module", module_key)
-        else:
-            return None
+    DOCTYPE = "lesson"
+
+    def get_module(self):
+        return Module.find(course=self.course, name=self.module)
 
     @property
     def next(self):
@@ -39,6 +27,9 @@ class Lesson(db.Document):
         collection = db.query("lesson", index=self.index-1)
         return collection and collection[0] or None
 
-db.register_model("course", Course)
-db.register_model("module", Module)
-db.register_model("lesson", Lesson)
+    def get_url(self):
+        return f"/courses/{self.course}/{self.module}/{self.name}"
+
+db.register_model(Course)
+db.register_model(Module)
+db.register_model(Lesson)
