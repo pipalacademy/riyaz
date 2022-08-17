@@ -1,0 +1,6 @@
+site_name: Riyaz Documentation
+
+theme:
+  name: material
+
+repo_url: https://github.com/pipalacademy/riyaz
