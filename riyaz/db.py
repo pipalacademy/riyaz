@@ -142,6 +142,7 @@ class Document:
         # update the id when the document is saved for the first time
         if self.id is None:
             self.id = doc.id
+        return self
 
 RE_FIELD = re.compile(r"^\w+$")
 
