@@ -72,7 +72,7 @@ class Document:
         return self.data[key]
 
     def __setitem__(self, key, value):
-        self.data['key'] = value
+        self.data[key] = value
 
     def __getattr__(self, key):
         if key.startswith("_"):
