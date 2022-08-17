@@ -78,9 +78,6 @@ class Document:
         self.data[key] = value
 
     def __getattr__(self, key):
-        if key.startswith("_"):
-            return super().__getattr__(key)
-
         try:
             return self.data[key]
         except KeyError:
@@ -141,7 +138,7 @@ class Document:
 
         # update the id when the document is saved for the first time
         if self.id is None:
-            self.id = doc.id
+            self.__dict__['id'] = doc.id
         return self
 
 RE_FIELD = re.compile(r"^\w+$")

@@ -1,4 +1,5 @@
 from riyaz import db
+import pytest
 
 def setup_function():
     with db.get_connection() as con:
@@ -128,3 +129,15 @@ def test_Document_find_all():
     docs = Number.find_all(parity='strange')
     keys = {doc.key for doc in docs}
     assert keys == set()
+
+def test_Document_getattr():
+    doc = db.Document("one", {"value": 1}).save()
+    print("doc", doc.__dict__)
+    assert doc.id is not None
+    assert doc.value == 1
+
+    # test for issue #12
+    with pytest.raises(AttributeError) as e:
+        doc._foo
+
+    assert str(e.value) == '_foo'
