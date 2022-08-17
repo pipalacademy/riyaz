@@ -1,9 +1,8 @@
 from flask import Flask, abort, render_template
 
-from functools import wraps
 import markdown
 
-from .models import db
+from .models import Course
 
 
 app = Flask("riyaz")
@@ -16,46 +15,24 @@ def md_to_html(md: str):
 
 @app.route("/")
 def index():
-    courses = db.query("course")
+    courses = Course.all()
     return render_template("index.html", courses=courses)
 
 
 @app.route("/courses/<name>")
 def view_course(name: str):
-    course = get_course(name=name)
+    course = Course.find(name)
+    if not course:
+        abort(404)
+
     return render_template("course.html", course=course)
 
 
 @app.route("/courses/<course_name>/<module_name>/<lesson_name>")
 def view_lesson(course_name: str, module_name: str, lesson_name: str):
-    course = get_course(name=course_name)
-    lesson = get_lesson(
-        course_id=course.id,
-        module_name=module_name,
-        lesson_name=lesson_name,
-    )
+    course = Course.find(course_name)
+    lesson = course and course.get_lesson(module_name, lesson_name)
+    if not lesson:
+        abort(404)
 
     return render_template("lesson.html", course=course, lesson=lesson)
-
-
-def abort_if_none(fn):
-    @wraps(fn)
-    def wrapper(*args, **kwargs):
-        retval = fn(*args, **kwargs)
-        if retval is None:
-            abort(404)
-
-        return retval
-
-    return wrapper
-
-
-@abort_if_none
-def get_course(name):
-    course = db.get("course", name)
-    return course
-
-
-@abort_if_none
-def get_lesson(course_id: str, module_name: str, lesson_name: str):
-    return db.get("lesson", f"{module_name}/{lesson_name}")

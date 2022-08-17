@@ -2,7 +2,19 @@
 from . import db
 
 class Course(db.Document):
-    pass
+    @classmethod
+    def find(cls, key):
+        return db.get("course", key)
+
+    @classmethod
+    def all(cls):
+        return db.query("course")
+
+    def get_lesson(self, module_name, lesson_name):
+        # TODO: Use self.id or self.key to query from only
+        # those lessons that belong to this course
+        lesson_key = f"{module_name}/{lesson_name}"
+        return db.get("lesson", lesson_key)
 
 class Module(db.Document):
     pass
