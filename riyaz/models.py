@@ -4,7 +4,7 @@ pydantic models that we use for APIs will go here.
 from __future__ import annotations
 
 import re
-from typing import List, IO, Optional, Union
+from typing import List, Optional, Union
 
 import frontmatter
 from pydantic import BaseModel, HttpUrl
