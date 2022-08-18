@@ -9,6 +9,7 @@ The CLI can run these commands:
                     server
     - `riyaz pull`: Pull a Riyaz course from a remote server
 """
+from __future__ import annotations
 
 import os
 import re
@@ -51,7 +52,7 @@ class Lesson(BaseModel):
     path: FilePath
 
     @classmethod
-    def from_path(cls, path: FilePath) -> "Lesson":
+    def from_path(cls, path: FilePath) -> Lesson:
         name = path.name.split(".", 1)[0]
         with open(path) as f:
             title = get_first_heading(f) or titlify(name)
@@ -65,7 +66,7 @@ class Chapter(BaseModel):
     lessons: List[Lesson]
 
     @classmethod
-    def from_config(cls, ch_config: ChapterConfig) -> "Chapter":
+    def from_config(cls, ch_config: ChapterConfig) -> Chapter:
         lessons = [Lesson.from_path(path) for path in ch_config.lessons]
         return cls(name=ch_config.name, title=ch_config.title, lessons=lessons)
 
@@ -77,7 +78,7 @@ class Author(BaseModel):
     photo: Optional[Union[HttpUrl, FilePath]]
 
     @classmethod
-    def from_key(cls, key: str) -> "Author":
+    def from_key(cls, key: str) -> Author:
         path = get_author_file_path(key)
         fm = frontmatter.load(path)
 
@@ -95,7 +96,7 @@ class Course(BaseModel):
     outline: List[Chapter]
 
     @classmethod
-    def from_config(cls, config: Config) -> "Course":
+    def from_config(cls, config: Config) -> Course:
         authors = [Author.from_key(key) for key in config.authors]
         outline = [
             Chapter.from_config(ch_config) for ch_config in config.outline
