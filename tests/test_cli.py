@@ -68,13 +68,16 @@ def test_get_course():
     assert course.outline[1].lessons[0].title == "Use cases of Sample"
 
     alfa_author = course.authors[0]
-    assert alfa_author.nickname == "alfa"
+    assert alfa_author.key == "alfa"
     assert alfa_author.name == "Alfa"
     assert alfa_author.photo is None
-    assert alfa_author.about.strip() == "Alfa is a good person who can write in *italics* and `code`."
+    assert (
+        alfa_author.about.strip()
+        == "Alfa is a good person who can write in *italics* and `code`."
+    )
 
     bravo_author = course.authors[1]
-    assert bravo_author.nickname == "bravo"
+    assert bravo_author.key == "bravo"
     assert bravo_author.name == "Bravo Bob"
     assert bravo_author.photo == "https://example.com"
     assert bravo_author.about.strip() == "Bravo"

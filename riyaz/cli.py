@@ -71,21 +71,21 @@ class Chapter(BaseModel):
 
 
 class Author(BaseModel):
-    nickname: str
+    key: str
     name: str
     about: Optional[str]
     photo: Optional[Union[HttpUrl, FilePath]]
 
     @classmethod
-    def from_nickname(cls, nickname: str) -> "Author":
-        path = get_author_file_path(nickname)
+    def from_key(cls, key: str) -> "Author":
+        path = get_author_file_path(key)
         fm = frontmatter.load(path)
 
         return cls(
-            nickname=nickname,
+            key=key,
             name=fm.get("name"),
             photo=fm.get("photo"),
-            about=fm.content
+            about=fm.content,
         )
 
 
@@ -96,7 +96,7 @@ class Course(BaseModel):
 
     @classmethod
     def from_config(cls, config: Config) -> "Course":
-        authors = [Author.from_nickname(name) for name in config.authors]
+        authors = [Author.from_key(key) for key in config.authors]
         outline = [
             Chapter.from_config(ch_config) for ch_config in config.outline
         ]
