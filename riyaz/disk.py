@@ -3,12 +3,11 @@ pydantic models and utility functions for parsing the on-disk courses go here.
 """
 from __future__ import annotations
 
-import os
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional
 
 import yaml
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validate_arguments, validator
 from pydantic.types import FilePath
 
 
@@ -35,7 +34,8 @@ class DiskCourse(BaseModel):
         return v
 
 
-def read_config(path: Union[str, os.PathLike]) -> DiskCourse:
+@validate_arguments
+def read_config(path: FilePath) -> DiskCourse:
     with open(path) as f:
         config_dict = yaml.safe_load(f)
 
