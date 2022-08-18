@@ -16,15 +16,16 @@ from .disk import DiskChapter, DiskCourse, get_author_file_path
 class Lesson(BaseModel):
     name: str
     title: str
-    path: FilePath
+    content: str
 
     @classmethod
     def from_path(cls, path: FilePath) -> Lesson:
         name = path.name.split(".", 1)[0]
         with open(path) as f:
-            title = get_first_heading(f) or titlify(name)
+            content = f.read()
+            title = get_first_heading(content) or titlify(name)
 
-        return cls(name=name, title=title, path=path)
+        return cls(name=name, title=title, content=content)
 
 
 class Chapter(BaseModel):
@@ -73,12 +74,11 @@ class Course(BaseModel):
         return Course(config=config, authors=authors, outline=outline)
 
 
-def get_first_heading(f: IO) -> Optional[str]:
-    heading_regex = re.compile(r"^(?:#{1,6})(.+)")
+def get_first_heading(content: str) -> Optional[str]:
+    heading_regex = re.compile(r"^(?:#{1,6})(.+)", re.MULTILINE)
 
-    for line in f:
-        if m := heading_regex.match(line):
-            return m.group(1).strip()
+    if m := heading_regex.search(content):
+        return m.group(1).strip()
 
     return None
 

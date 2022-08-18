@@ -15,8 +15,8 @@ def test_get_course(disk_course):
     assert len(course.outline) == 2
 
     assert (
-        str(course.outline[0].lessons[1].path)
-        == "getting-started/more-about-sample.md"
+        course.outline[0].lessons[1].content.strip("\n")
+        == "### something more about sample"
     )
     assert course.outline[0].lessons[0].title == "How To Use Sample"
 
