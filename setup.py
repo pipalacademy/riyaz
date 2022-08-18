@@ -9,7 +9,8 @@ setup(
     install_requires=[
         "click>=8.1.3",
         "pydantic>=1.9.2",
-        "PyYAML>=6.0"
+        "PyYAML>=6.0",
+        "python-frontmatter==1.0.0"
     ],
     url="https://github.com/pipalacademy/riyaz",
     packages=find_packages(),
