@@ -16,7 +16,7 @@ setup(
     packages=find_packages(),
     entry_points={
         "console_scripts": [
-            "riyaz = riyaz:main"
+            "riyaz = riyaz.cli:main"
         ]
     }
 )
