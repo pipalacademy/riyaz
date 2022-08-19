@@ -93,17 +93,15 @@ class Course(db.Document):
         course.save()
 
         # save modules and lessons
-        for _module in modules:
-            module_data = _module.dict()
+        for module_data in modules:
             lessons = module_data.pop("lessons")
             module = Module(
-                _module.name, {**module_data, "course": _course.key}
+                module_data["name"], {**module_data, "course": course.key}
             ).save()
 
-            for _lesson in lessons:
-                lesson_data = _lesson.dict()
+            for lesson_data in lessons:
                 Lesson(
-                    f"{module.key}/{_lesson.name}",
+                    f"{module.key}/{lesson_data['name']}",
                     {
                         **lesson_data,
                         "module": module.key,
@@ -162,11 +160,11 @@ def create_outline_without_content(modules):
     # strip lesson content from outline
     return [
         {
-            "name": module.name,
-            "title": module.title,
+            "name": module["name"],
+            "title": module["title"],
             "lessons": [
-                {"name": lesson.name, "title": lesson.title}
-                for lesson in module.lessons
+                {"name": lesson["name"], "title": lesson["title"]}
+                for lesson in module["lessons"]
             ],
         }
         for module in modules

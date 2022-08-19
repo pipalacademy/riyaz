@@ -17,6 +17,11 @@ def teardown_function():
 
 
 @pytest.fixture
+def cd_data_dir(monkeypatch, data_dir):
+    monkeypatch.chdir(data_dir)
+
+
+@pytest.fixture
 def course():
     return Course.find(key="alpha-course")
 
@@ -153,3 +158,16 @@ def test_course_get_previous_lesson(course):
     assert isinstance(previous_lesson, Lesson)
     assert previous_lesson.module == "uno-module"
     assert previous_lesson.name == "moonu-lesson"
+
+
+def test_save_from_model(cd_data_dir, model_course):
+    Course.save_from_model(model_course)
+
+    course = Course.find(key=model_course.name)
+    assert isinstance(course, Course)
+    assert course.name == model_course.name
+
+    for module in model_course.outline:
+        assert Module.find(key=module.name) is not None
+        for lesson in module.lessons:
+            assert course.get_lesson(module.name, lesson.name) is not None
