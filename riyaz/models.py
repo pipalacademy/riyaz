@@ -7,10 +7,10 @@ import re
 from typing import List, Optional, Union
 
 import frontmatter
-from pydantic import BaseModel, HttpUrl
-from pydantic.types import FilePath
+from pydantic import BaseModel, HttpUrl, validate_arguments
+from pydantic.types import DirectoryPath, FilePath
 
-from .disk import DiskChapter, DiskCourse, get_author_file_path
+from .disk import DiskChapter, DiskCourse, get_author_file_path, read_config
 
 
 class Lesson(BaseModel):
@@ -61,7 +61,10 @@ class Author(BaseModel):
 
 
 class Course(BaseModel):
-    config: DiskCourse
+    name: str
+    title: str
+    short_description: Optional[str]
+    description: str
     authors: List[Author]
     outline: List[Chapter]
 
@@ -71,7 +74,19 @@ class Course(BaseModel):
         outline = [
             Chapter.from_disk(disk_chapter) for disk_chapter in config.outline
         ]
-        return Course(config=config, authors=authors, outline=outline)
+        return Course(
+            name=config.name,
+            title=config.title,
+            short_description=config.short_description,
+            description=config.description,
+            authors=authors,
+            outline=outline,
+        )
+
+    @classmethod
+    def from_directory(cls, directory: DirectoryPath) -> Course:
+        config = read_config(directory / "course.yml")
+        return cls.from_config(config)
 
 
 def get_first_heading(content: str) -> Optional[str]:
