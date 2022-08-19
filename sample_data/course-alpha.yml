@@ -1,5 +1,6 @@
 doctype: course
 key: "alpha-course"
+name: "alpha-course"
 title: "Alpha Course"
 short_description: "A course on Alpha"
 description: |
@@ -13,34 +14,34 @@ description: |
   alpha.alpha("hello, world")
   ```
 authors:
-  - name: "Alice"
+  - key: alice
+    name: "Alice"
     photo: "https://thispersondoesnotexist.com/image"
     about: |
       Alice is an instructor with fulana years of experience.
       She has built [projects](#) in Alpha, and has talked about it at events.
-  - name: "Chuck"
+  - key: chuck
+    name: "Chuck"
     photo: "https://thispersondoesnotexist.com/image"
     about: |
       Alice is an instructor with fulana years of experience.
       She has built [projects](#) in Alpha, and has talked about it at events.
 outline:
-  - module:
-      key: "uno-module"
-      title: "Uno Module"
+  - name: "uno-module"
+    title: "Uno Module"
     lessons:
-      - key: "uno-module/onnu-lesson"
+      - name: "onnu-lesson"
         title: "Onnu Lesson"
-      - key: "uno-module/rendu-lesson"
+      - name: "rendu-lesson"
         title: "Rendu Lesson"
-      - key: "uno-module/moonu-lesson"
+      - name: "moonu-lesson"
         title: "Moonu Lesson"
-  - module:
-      key: "dos-module"
-      title: "Dos Module"
+  - name: "dos-module"
+    title: "Dos Module"
     lessons:
-      - key: "dos-module/naalu-lesson"
+      - name: "naalu-lesson"
         title: "Naalu Lesson"
-      - key: "dos-module/anju-lesson"
+      - name: "anju-lesson"
         title: "Anju Lesson"
-      - key: "dos-module/moonu-lesson"
+      - name: "moonu-lesson"
         title: "Moonu Lesson"

@@ -1,10 +1,10 @@
 doctype: lesson
 course: "alpha-course"
-module: "uno-module"
+module: "dos-module"
 name: "moonu-lesson"
 title: "Moonu Lesson"
 content: |
-  # Moonu Lesson
+  # Moonu Lesson in dos-module
 
   Hello world.
 

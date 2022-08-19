@@ -1,10 +1,10 @@
 doctype: lesson
 course: "alpha-course"
-module: "uno-module"
-name: "moonu-lesson"
-title: "Moonu Lesson"
+module: "dos-module"
+name: "naalu-lesson"
+title: "Naalu Lesson"
 content: |
-  # Moonu Lesson
+  # Naalu Lesson
 
   Hello world.
 
