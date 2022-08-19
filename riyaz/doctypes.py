@@ -124,7 +124,7 @@ class Module(db.Document):
 
     @property
     def index(self):
-        course = self.get_course(course=self.key)
+        course = self.get_course()
         return course and course.get_module_index(self.name)
 
 

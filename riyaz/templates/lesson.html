@@ -24,8 +24,9 @@
 </svg>
 {% endmacro %}
 
-{% macro LessonIndex(module, lesson) -%}
-{{ module.index }}.{{ lesson.index }}
+{% macro LessonIndex(lesson) -%}
+{% set module_i, lesson_i = lesson.index %}
+{{ module_i }}.{{ lesson_i }}
 {%- endmacro %}
 
 {% macro LessonHeader(course, lesson) %}
@@ -41,7 +42,7 @@
         <div class="d-md-flex justify-content-between pt-3 pb-2">
             <div>
                 <h6 class="text-muted mb-0">{{ module.title }}</h6>
-                <h1>{{ LessonIndex(module, lesson) }} {{ lesson.title }}</h1>
+                <h1>{{ LessonIndex(lesson) }} {{ lesson.title }}</h1>
             </div>
             <div class="d-md-flex align-items-end mb-2">
                 <a class="text-light w-100" href="/courses/{{ course.key }}#course-outline">
@@ -70,7 +71,7 @@
                 {% if lesson.previous %}
                 <a class="text-light text-decoration-none" href="{{ lesson.previous.get_url() }}">&#x2190; Previous</a>
                 <div class="text-muted">
-                    {{ LessonIndex(lesson.get_module(), lesson.previous) }} {{ lesson.previous.title }}
+                    {{ LessonIndex(lesson.previous) }} {{ lesson.previous.title }}
                 </div>
                 {% endif %}
             </div>
@@ -79,7 +80,7 @@
                 {% if lesson.next %}
                 <a class="text-light text-decoration-none" href="{{ lesson.next.get_url() }}">Next &#x2192;</a>
                 <div class="text-muted">
-                    {{ LessonIndex(lesson.get_module(), lesson.next) }} {{ lesson.next.title }}
+                    {{ LessonIndex(lesson.next) }} {{ lesson.next.title }}
                 </div>
                 {% endif %}
             </div>

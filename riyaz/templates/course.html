@@ -17,7 +17,7 @@
     <div>
         {% for instructor in course.authors %}
 
-        <a class="text-decoration-none text-light" href="#author-{{ instructor.id }}">
+        <a class="text-decoration-none text-light" href="#author-{{ instructor.key }}">
             <div class="d-flex align-items-center mb-1">
                 <span class="me-2">
                     {{ Avatar(instructor.photo) }}
@@ -39,8 +39,8 @@
 {% macro CourseOutline(course) %} 
 <h2 id="course-outline" class="mb-3">Course outline</h2>
 <div>
-    {% for part in course.outline %}
-    {% set module, lessons = part.module, part.lessons %}
+    {% for module in course.outline %}
+    {% set lessons = module.lessons %}
     <div class="card text-bg-light mb-3">
         <div class="card-header">
             <h6 id="{{ module.key }}" class="mb-0">{{ module.title }}</h6>
