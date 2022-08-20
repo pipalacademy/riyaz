@@ -43,12 +43,12 @@
     {% set lessons = module.lessons %}
     <div class="card text-bg-light mb-3">
         <div class="card-header">
-            <h6 id="{{ module.key }}" class="mb-0">{{ module.title }}</h6>
+            <h6 id="{{ module.name }}" class="mb-0">{{ module.title }}</h6>
         </div>
         <ol class="list-group list-group-flush">
             {% for lesson in lessons %}
             <li class="list-group-item ps-4">
-                <a class="card-link text-decoration-none" href="/courses/{{ course.key }}/{{ lesson.key }}">{{ lesson.title }}</a>
+                <a class="card-link text-decoration-none" href="/courses/{{ course.name }}/{{ module.name }}/{{ lesson.name }}">{{ lesson.title }}</a>
             </li>
             {% endfor %}
         </ol>
@@ -61,7 +61,7 @@
 <h2 id="instructors" class="mb-3">Instructors</h2>
 <div>
     {% for instructor in course.authors %}
-    <div id="author-{{ instructor.id }}" class="row mb-3">
+    <div id="author-{{ instructor.key }}" class="row mb-3">
         <div class="col-12 col-sm-4 col-md-3 col-lg-2 text-center">
             <img class="rounded-circle" style="width: 100%; max-height: 128px; max-width: 128px;" src="{{ instructor.photo }}" />
         </div>
