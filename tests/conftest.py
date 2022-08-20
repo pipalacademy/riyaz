@@ -3,7 +3,6 @@ from pathlib import Path
 import pytest
 from pydantic import BaseModel, HttpUrl, validator
 
-from riyaz import models
 from riyaz.disk import read_config
 
 
@@ -21,7 +20,7 @@ def disk_course():
 
 @pytest.fixture
 def model_course(disk_course):
-    return models.Course.from_config(disk_course)
+    return disk_course.parse()
 
 
 @pytest.fixture

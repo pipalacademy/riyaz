@@ -1,15 +1,13 @@
 import pytest
 
-from riyaz import models
-
 
 @pytest.fixture(autouse=True)
 def change_workdir(monkeypatch, data_dir):
     monkeypatch.chdir(data_dir)
 
 
-def test_get_course(disk_course):
-    course = models.Course.from_config(disk_course)
+def test_get_course(model_course):
+    course = model_course
 
     assert len(course.authors) == 2
     assert len(course.outline) == 2

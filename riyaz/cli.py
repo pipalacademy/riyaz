@@ -13,7 +13,7 @@ from pathlib import Path
 
 import click
 
-from riyaz import models
+from riyaz import disk
 from riyaz import doctypes
 from riyaz.app import app
 from riyaz.migrate import migrate
@@ -34,11 +34,8 @@ def serve():
 def setup_db():
     migrate()
     sample_data_path = Path(__file__).parent.parent.resolve() / "sample_data"
-    print("sample_data", sample_data_path)
-    print("contents: ", [p for p in sample_data_path.glob("*")])
     load_sample_data(sample_data_path)
 
     workdir = Path.cwd()
-    course_model = models.Course.from_directory(workdir)
-    course = doctypes.Course.save_from_model(course_model)
-    print("course", course.name, course.title)
+    course_model = disk.get_course_from_directory(workdir)
+    doctypes.Course.save_from_model(course_model)
