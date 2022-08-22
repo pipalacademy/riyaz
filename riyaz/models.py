@@ -1,35 +1,37 @@
+"""
+pydantic models that we use for APIs will go here.
+"""
+from __future__ import annotations
 
-from . import db
+from typing import List, Optional, Union
 
-class Course(db.Document):
-    DOCTYPE = "course"
+from pydantic import BaseModel, HttpUrl
+from pydantic.types import FilePath
 
-    def get_lesson(self, module_name, lesson_name):
-        return Lesson.find(course=self.key, module=module_name, name=lesson_name)
 
-class Module(db.Document):
-    DOCTYPE = "module"
-    pass
+class Lesson(BaseModel):
+    name: str
+    title: str
+    content: str
 
-class Lesson(db.Document):
-    DOCTYPE = "lesson"
 
-    def get_module(self):
-        return Module.find(course=self.course, name=self.module)
+class Chapter(BaseModel):
+    name: str
+    title: str
+    lessons: List[Lesson]
 
-    @property
-    def next(self):
-        collection = db.query("lesson", index=self.index+1)
-        return collection and collection[0] or None
 
-    @property
-    def previous(self):
-        collection = db.query("lesson", index=self.index-1)
-        return collection and collection[0] or None
+class Author(BaseModel):
+    key: str
+    name: str
+    about: Optional[str]
+    photo: Optional[Union[HttpUrl, FilePath]]
 
-    def get_url(self):
-        return f"/courses/{self.course}/{self.module}/{self.name}"
 
-db.register_model(Course)
-db.register_model(Module)
-db.register_model(Lesson)
+class Course(BaseModel):
+    name: str
+    title: str
+    short_description: Optional[str]
+    description: str
+    authors: List[Author]
+    outline: List[Chapter]

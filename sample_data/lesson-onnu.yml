@@ -3,7 +3,6 @@ course: "alpha-course"
 module: "uno-module"
 name: "onnu-lesson"
 title: "Onnu Lesson"
-index: 1
 content: |
   # Onnu Lesson
 

@@ -2,7 +2,7 @@ from flask import Flask, abort, render_template
 
 import markdown
 
-from .models import Course
+from .doctypes import Course
 
 
 app = Flask("riyaz")

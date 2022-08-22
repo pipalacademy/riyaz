@@ -1,0 +1,23 @@
+name: sample-course
+title: Sample Course
+short_description: This is a sample course for use to clarify the course.yml format
+description: |
+    This is a longer description in markdown format. The course instructor can use `codeblocks` and *italics* to
+    highlight the ideas in the course. 
+
+    ```python
+    import sample
+    ```
+authors: alfa
+outline:
+    - name: getting-started
+      title: Getting started
+      lessons:
+        - getting-started/how-to-use-sample.md
+        - getting-started/more-about-sample.md
+    - name: intermediate-sample
+      title: Intermediate Sample
+      lessons:
+        - intermediate-sample/more-use-cases-of-sample.md
+        - intermediate-sample/more-reading-about-sample.md
+

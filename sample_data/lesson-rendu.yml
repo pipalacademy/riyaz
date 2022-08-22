@@ -3,7 +3,6 @@ course: "alpha-course"
 module: "uno-module"
 name: "rendu-lesson"
 title: "Rendu Lesson"
-index: 2
 content: |
   # Rendu Lesson
 

@@ -1,0 +1,2 @@
+include riyaz/schema.sql
+recursive-include riyaz/templates *
