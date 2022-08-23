@@ -178,45 +178,78 @@ class CourseLoader:
         return course
 
     def _load_course(self, course: models.Course) -> db.Course:
-        return db.Course(
+        fields = dict(
             key=course.name,
             title=course.title,
             short_description=course.short_description,
-            description=course.description,
+            description=course.description
         )
+
+        if db_course := db.Course.find(key=course.name):
+            db_course.update(**fields)
+        else:
+            db_course = db.Course(**fields)
+
+        return db_course
 
     def _load_chapter(
         self, course_id: int, index: int, chapter: models.Chapter
     ) -> db.Module:
-        return db.Module(
+        course = db.Course.find(id=course_id)
+        assert course is not None
+
+        fields = dict(
             course_id=course_id,
             name=chapter.name,
             title=chapter.title,
             index_=index,
         )
 
+        if db_module := course.get_module(chapter.name):
+            db_module.update(**fields)
+        else:
+            db_module = db.Module(**fields)
+
+        return db_module
+
     def _load_lesson(
         self, course_id: int, module_id: int, index: int, lesson: models.Lesson
     ) -> db.Lesson:
-        return db.Lesson(
+        fields = dict(
             course_id=course_id,
             module_id=module_id,
             name=lesson.name,
             title=lesson.title,
             content=lesson.content,
-            index_=index,
-        )
+            index_=index)
+
+        module = db.Module.find(id=module_id)
+        assert module is not None
+
+        if db_lesson := module.get_lesson(lesson.name):
+            db_lesson.update(**fields)
+        else:
+            db_lesson = db.Lesson(**fields)
+
+        return db_lesson
 
     def _load_author(
         self, course_id: int, author: models.Author
     ) -> db.Instructor:
-        return db.Instructor(
+        fields = dict(
             course_id=course_id,
             key=author.key,
             name=author.name,
             about=author.about,
             photo_path=author.photo,
         )
+
+        if db_instructor := db.Instructor.find(key=author.key):
+            db_instructor.update(**fields)
+        else:
+            db_instructor = db.Instructor(**fields)
+
+        return db_instructor
 
     def _load_lesson_outline(
         self,
