@@ -1,278 +1,168 @@
-"""Document database for riyaz.
-
-It is a simple schemaless document database built on sqlite.
-
-Requires Sqlite version 3.8.0+.
-
-## Usage
-
-    from riyaz import db
-
-    db.save("number", "one", {"name": "One", "value": 1, "parity", "odd"})
-    db.save("number", "two", {"name": "Two", "value": 2, "parity": "even"})
-    db.save("number", "three", {"name": "Three", "value": 3, "parity": "odd"})
-
-    doc = db.get("number", "one")
-    print(doc.name, doc.value) # one 1
-
-    db.query(doctype="number", value=2) # [<number:two>]
-
-    db.query(doctype="number", parity='odd') # [<number:one>, <number:three>]
-
-    db.get_many("number": ["one", "two"]) # [<number:one>, <number:two>]
-
-## Inspiration
-
-This is inspired by Infogami[1][2] and FriendFeed database[3].
-
-[1]: https://github.com/openlibrary/infogami/blob/a4677e19ec0c6f7bafeb0bbdf166ff078b71d3dc/infogami/tdb/schema.sql
-[2]: https://github.com/openlibrary/infogami
-[3]: https://backchannel.org/blog/friendfeed-schemaless-mysql
+"""database of riyaz.
 """
 from __future__ import annotations
-from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
-import re
-import apsw
-import json
-
+import web
+import functools
+from pydantic import BaseModel
+from typing import Optional
 from . import config
 
-def verify_sqlite_version():
-    version = apsw.sqlitelibversion()
-    print("Sqlite version:", version)
-    v = version.split(".")
-    if v < ['3', '38']:
-        raise Exception("This software requires use sqlite >= 3.38.0")
-    print(apsw.SQLITE_VERSION_NUMBER)
+class SqliteDB(web.db.SqliteDB):
+    def _connect(self, keywords):
+        conn = super()._connect(keywords)
+        conn.execute("PRAGMA foreign_keys = 1")
+        return conn
 
-verify_sqlite_version()
+    def _connect_with_pooling(self, keywords):
+        conn = super()._connect_with_pooling(keywords)
+        conn.execute("PRAGMA foreign_keys = 1")
+        return conn
 
-def get_connection():
-    return apsw.Connection(config.database_path)
+web.db.register_database("sqlite", SqliteDB)
 
-_models = {}
+@web.memoize
+def get_db():
+    return web.database("sqlite:///" + config.database_path)
 
-def register_model(klass):
-    _models[klass.DOCTYPE] = klass
+cache = {}
 
-def get_model(doctype):
-    return _models.get(doctype, Document)
+def query_memoize(f):
+    @functools.wraps(f)
+    def g(cls, **kwargs):
+        key = cls, tuple(kwargs.items())
+        if key not in cache:
+            cache[key] = f(cls, **kwargs)
+        return cache[key]
+    return g
 
-class Document:
-    DOCTYPE = "document"
-
-    def __init__(self, key, data, id=None, doctype=None):
-        self.__dict__['id'] = id
-        self.__dict__['doctype'] = doctype or self.__class__.DOCTYPE
-        self.__dict__['key'] = key
-        self.__dict__['data'] = data
-
-    def __repr__(self):
-        return f"<{self.doctype} {self.key} {self.data}>"
-
-    def __getitem__(self, key):
-        return self.data[key]
-
-    def __setitem__(self, key, value):
-        self.data[key] = value
-
-    def __getattr__(self, key):
-        try:
-            return self.data[key]
-        except KeyError:
-            raise AttributeError(key)
-
-    def __setattr__(self, key, value):
-        if key.startswith("_"):
-            return super().__setattr__(key, value)
-
-        self.data[key] = value
+class Document(BaseModel):
+    id: Optional[int] = None
 
     @classmethod
-    def find(cls, *, key=None, **q) -> Optional[Document]:
-        """Finds the document matching the query.
-
-        Usage:
-
-            Document("one", {"value": 1, "squaure": 1}).save()
-            Document("two", {"value": 2, "squaure": 4}).save()
-
-            one = Document.find(key="one")
-            two = Document.find(square=4)
-        """
-        if key and not q:
-            return get(cls.DOCTYPE, key)
-        else:
-            if key is not None:
-                q['key'] = key
-            return find(cls.DOCTYPE, **q)
-
-    @classmethod
-    def find_all(cls, **q) -> List[Document]:
-        """Finds all the documents matching the given query.
-
-        Usage:
-
-            class Number(Document):
-                DOCTYPE = "number"
-
-            // all numbers
-            numbers = Number.find_all()
-
-            // even numbers
-            numbers = Number.find_all(parity="even")
-        """
-        return query(cls.DOCTYPE, **q)
-
-    def save(self):
-        """Saves the document.
-
-        Usage:
-            doc = Document.find(key="counter")
-            doc.count += 1
-            doc.save()
-
-        """
-        doc = save(self.doctype, self.key, self.data)
-
-        # update the id when the document is saved for the first time
-        if self.id is None:
-            self.__dict__['id'] = doc.id
-        return self
-
-RE_FIELD = re.compile(r"^\w+$")
-
-@dataclass
-class DBQuery:
-    """Structure for database query"""
-    table: str = "document"
-    where_clauses: List[str] = field(default_factory=list)
-    params: List[Any] = field(default_factory=list)
-    limit: Optional[int] = None
-    offset: Optional[int] = None
-
-    def clone(self):
-        return DBQuery(self.table, list(self.where_clauses), list(self.params))
-
-    def where(self, name, value, op="="):
-        if not RE_FIELD.match(name):
-            raise ValueError(f"Invalid field: {name}")
-
-        if name in ['key', 'doctype']:
-            field = name
-        else:
-            field = f"data->>'$.{name}'"
-
-        clause, params = self._prepare_where(field, op, value)
-
-        q = self.clone()
-        q.where_clauses.append(clause)
-        q.params.extend(params)
-        return q
-
-    def _prepare_where(self, field, op, value):
-        """Returns the clause and params."""
-        if isinstance(value, list):
-            n = len(value)
-            placeholder = "(" + ", ".join('?' * n) + ")"
-            params = value
-        else:
-            placeholder = "?"
-            params = [value]
-        return f"{field} {op} {placeholder}", params
-
-    def make_query(self):
-        sql = "SELECT id, doctype, key, data FROM document"
-        if self.where_clauses:
-            sql += " WHERE " + " AND ".join(self.where_clauses)
-
-        params = list(self.params)
-
-        if self.limit is not None:
-            sql += " LIMIT ?"
-            params.append(self.limit)
-
-        if self.offset is not None:
-            sql += " LIMIT ?"
-            params.append(self.offset)
-        return sql, params
-
-    def execute(self, con):
-        sql, params = self.make_query()
-        print("execute:", sql)
-        print("params:", params)
-        cur = con.cursor()
-        cur.execute(sql, params)
-        rows = cur.fetchall()
-        return [self.process_row(row) for row in rows]
-
-    def process_row(self, row):
-        _id, doctype, key, data = row
-        data = json.loads(data)
-        klass = get_model(doctype)
-        return klass(key, data, id=_id)
-
-def get(doctype: str, key: str) -> Optional[Document]:
-    """Returns a document from database.
-    """
-    q = (
-        DBQuery()
-        .where("doctype", doctype)
-        .where("key", key))
-    with get_connection() as con:
-        docs = q.execute(con)
+    def find(cls, **kwargs):
+        docs = cls.find_all(**kwargs, limit=1)
         return docs and docs[0] or None
 
-def get_many(doctype: str, keys: List[str]) -> List[Document]:
-    """Loads and returns multiple documents at once from the database.
-    """
-    q = (
-        DBQuery()
-        .where("doctype", doctype)
-        .where("key", keys, op="IN"))
-    with get_connection() as con:
-        docs = {doc.key: doc for doc in q.execute(con)}
-        return [docs[key] for key in keys]
+    @classmethod
+    @query_memoize
+    def find_all(cls, **kwargs):
+        rows = get_db().where(cls._TABLE, **kwargs)
+        return [cls(**row) for row in rows]
 
-def find(doctype: str, **where: Dict[str, Any]) -> Optional[Document]:
-    """Queries the database to find the first matching document.
+    @classmethod
+    def select(cls, *, what='*', where, vars, order=None, limit=None, offset=None):
+        rows = get_db().select(
+            cls._TABLE,
+            what=what,
+            where=where,
+            vars=vars,
+            order=order,
+            limit=limit,
+            offset=offset)
+        if what == '*':
+            return [cls(**row) for row in rows]
+        else:
+            return rows
 
-    Returns None when there are no matches. Returns any one of matches
-    when there are more than one match.
-    """
-    docs = query(doctype, **where, limit=1)
-    return docs and docs[0] or None
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {dict(self)}>"
 
-def query(doctype: str, *, limit=None, offset=None, **where: Dict[str, Any]) -> List[Document]:
-    """Queries the database and returns the matching documents.
-    """
-    q = DBQuery(limit=limit, offset=offset)
-    q = q.where('doctype', doctype)
-    for name, value in where.items():
-        q = q.where(name, value)
+    __str__ = __repr__
 
-    with get_connection() as con:
-        return q.execute(con)
+    def update(self, **kwargs):
+        # TODO: is there a better way to handle this?
+        self.__dict__.update(kwargs)
 
-def save(doctype: str, key: str, data: Dict[str, Any]) -> Document:
-    """Saves a new document or updates an existing one in the database.
-    """
-    doc = get(doctype, key)
-    if doc:
-        q = "UPDATE document SET data=? WHERE id=?"
-        params = [json.dumps(data), doc.id]
-    else:
-        q = "INSERT INTO document (doctype, key, data) VALUES (?, ?, ?)"
-        params = [doctype, key, json.dumps(data)]
+    def save(self):
+        if self.id is None:
+            d = self.dict()
+            d.pop("id", None)
+            self.id = get_db().insert(self._TABLE, **d)
+        else:
+            get_db().update(self._TABLE, where="id=$id", vars={"id": self.id}, **self.dict())
 
-    with get_connection() as con:
-        cur = con.cursor()
-        print("execute:", q)
-        print("params:", params)
-        cur.execute(q, params)
+class Course(Document):
+    _TABLE = "course"
 
-    doc = get(doctype, key)
-    if doc is None:
-        raise Exception("bah")
-    return doc
+    key: str
+    title: str
+    short_description: Optional[str]
+    description: Optional[str]
+
+    def get_modules(self):
+        return Module.find_all(course_id=self.id)
+
+    def get_module(self, name):
+        return Module.find(course_id=self.id, name=name)
+
+    def get_lesson(self, name):
+        return Lesson.find(course_id=self.id, name=name)
+
+    def get_outline(self):
+        # TODO: fixme
+        return []
+
+    def get_instructors(self):
+        return Instructor.find_by_course(self)
+
+class Instructor(Document):
+    _TABLE = "instructor"
+
+    key: str
+    name: str
+    about: str
+    photo_path: Optional[str]
+
+    def get_preview(self):
+        return {"id": self.id, "key": self.key, "name": self.name}
+
+    def get_courses(self):
+        rows = get_db().where("course_instructor", instructor_id=self.id)
+        course_ids = [row.course_id for row in rows]
+        # return Course.select(where="id in $ids", vars={"ids": course_ids})
+
+        return Course.select(
+            join={"course_instructor": "course_instructor.course_id=course.id"},
+            where="course_instructor.instructor_id=$id", vars={"id": self.id})
+
+    @classmethod
+    def find_by_course(cls, course):
+        rows = get_db().where("course_instructor", course_id=course.id)
+        ids = [row.instructor_id for row in rows]
+        return cls.select(where="id in $ids", vars={"ids": ids})
+
+
+class Module(Document):
+    _TABLE = "module"
+
+    course_id: int
+    name: str
+    title: str
+    index_: int
+
+    def get_lessons(self):
+        return Lesson.find_all(module_id=self.id)
+
+class Lesson(Document):
+    _TABLE = "lesson"
+
+    course_id: int
+    module_id: int
+    index_: int
+    name: str
+    title: str
+    content: Optional[str]
+
+    def get_course(self):
+        return Course.find(id=self.course_id)
+
+    def get_preview(self):
+        return dict(id=self.id, name=self.name, title=self.title)
+
+    def get_next(self):
+        row = get_db().select("course_outline", lesson_id=self.id).first()
+        return row and row.next_lesson_id and Lesson.find(id=row.next_lesson_id) or None
+
+    def get_prev(self):
+        row = get_db().select("course_outline", lesson_id=self.id).first()
+        return row and row.next_lesson_id and Lesson.find(id=row.next_lesson_id) or None
