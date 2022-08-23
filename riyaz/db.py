@@ -105,6 +105,16 @@ class Course(Document):
     def get_instructors(self):
         return Instructor.find_by_course(self)
 
+    def set_instructors(self, *instructors):
+        get_db().delete(
+            "course_instructor",
+            where="course_id = $course_id", vars={"course_id": self.id})
+
+        for idx, instructor in enumerate(instructors):
+            get_db().insert(
+                "course_instructor",
+                course_id=self.id, instructor_id=instructor.id, index_=idx)
+
 class Instructor(Document):
     _TABLE = "instructor"
 
