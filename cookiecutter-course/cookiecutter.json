@@ -1,0 +1,8 @@
+{
+    "course_title": "Hello, World!",
+    "course_name": "{{ cookiecutter.course_title | slugify }}",
+    "author": "Alice",
+    "short_description": "{{ cookiecutter.course_title }}",
+    "description": "{{ cookiecutter.short_description }}",
+    "_extensions": ["cookiecutter.extensions.SlugifyExtension"]
+}

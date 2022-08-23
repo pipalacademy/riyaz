@@ -1,0 +1,15 @@
+name: {{ cookiecutter.course_name }}
+title: {{ cookiecutter.course_title }}
+
+short_description: {{ cookiecutter.short_description }}
+description: |
+  {{ cookiecutter.description }}
+
+authors:
+  - {{ cookiecutter.author | slugify }}
+outline:
+    - name: getting-started
+      title: Getting started
+      lessons:
+        - getting-started/riyaz-terminology.md
+        - getting-started/course-yml.md

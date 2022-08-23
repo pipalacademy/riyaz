@@ -10,10 +10,11 @@ setup(
         "click>=8.1.3",
         "pydantic>=1.9.2",
         "PyYAML>=6.0",
-        "python-frontmatter==1.0.0"
+        "python-frontmatter==1.0.0",
+        "cookiecutter==2.1.1"
     ],
     url="https://github.com/pipalacademy/riyaz",
-    packages=[*find_packages(), "sample_data"],
+    packages=[*find_packages(), "cookiecutter-course"],
     include_package_data=True,
     entry_points={
         "console_scripts": [

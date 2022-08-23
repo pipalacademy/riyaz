@@ -15,6 +15,7 @@ import tempfile
 from pathlib import Path
 
 import click
+from cookiecutter.main import cookiecutter
 
 from riyaz import disk
 from riyaz import doctypes
@@ -40,6 +41,15 @@ def serve():
     """
     with setup_db():
         app.run()
+
+
+@main.command(short_help="setup a new course from template")
+def new():
+    """Setup a new Riyaz course from default template.
+    """
+    template_path = Path(__file__).parent.parent / "cookiecutter-course/"
+    print(template_path)
+    cookiecutter(str(template_path))
 
 
 @contextlib.contextmanager
