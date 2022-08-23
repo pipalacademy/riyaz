@@ -1,5 +1,25 @@
 {% extends "base.html" %}
 
+{#
+Context needed:
+    - course:
+        - key: str
+        - title: str
+        - short_description: str
+        - description: str
+        - get_instructors() -> list[]
+            - key: str
+            - name: str
+            - about: str
+            - photo_path: str
+        - get_outline() -> list[]
+            - name: str
+            - title: str
+            - lessons: list[]
+                - name: str
+                - title: str
+#}
+
 {% block title %}
 {{ course.title }}
 {% endblock %}
@@ -15,12 +35,12 @@
 
     <h6 class="card-subtitle mb-2">Instructors:</h6>
     <div>
-        {% for instructor in course.authors %}
+        {% for instructor in course.get_instructors() %}
 
         <a class="text-decoration-none text-light" href="#author-{{ instructor.key }}">
             <div class="d-flex align-items-center mb-1">
                 <span class="me-2">
-                    {{ Avatar(instructor.photo) }}
+                    {{ Avatar(instructor.photo_path) }}
                 </span>
                 {{ instructor.name }}
             </div>
@@ -39,7 +59,7 @@
 {% macro CourseOutline(course) %} 
 <h2 id="course-outline" class="mb-3">Course outline</h2>
 <div>
-    {% for module in course.outline %}
+    {% for module in course.get_outline() %}
     {% set lessons = module.lessons %}
     <div class="card text-bg-light mb-3">
         <div class="card-header">
@@ -48,7 +68,7 @@
         <ol class="list-group list-group-flush">
             {% for lesson in lessons %}
             <li class="list-group-item ps-4">
-                <a class="card-link text-decoration-none" href="/courses/{{ course.name }}/{{ module.name }}/{{ lesson.name }}">{{ lesson.title }}</a>
+                <a class="card-link text-decoration-none" href="/courses/{{ course.key }}/{{ module.name }}/{{ lesson.name }}">{{ lesson.title }}</a>
             </li>
             {% endfor %}
         </ol>
@@ -60,7 +80,7 @@
 {% macro CourseInstructors(course) %} 
 <h2 id="instructors" class="mb-3">Instructors</h2>
 <div>
-    {% for instructor in course.authors %}
+    {% for instructor in course.get_instructors() %}
     <div id="author-{{ instructor.key }}" class="row mb-3">
         <div class="col-12 col-sm-4 col-md-3 col-lg-2 text-center">
             <img class="rounded-circle" style="width: 100%; max-height: 128px; max-width: 128px;" src="{{ instructor.photo }}" />
