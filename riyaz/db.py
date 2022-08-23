@@ -3,6 +3,7 @@
 from __future__ import annotations
 import web
 import functools
+from itertools import groupby
 from pydantic import BaseModel
 from typing import List, Optional
 from . import config
@@ -103,7 +104,6 @@ class Course(Document):
             "course_outline",
             where="course_id = $course_id",
             order="module_index, lesson_index",
-            group="module_id",
             vars={"course_id": self.id})
 
         def transform(lesson_group):
@@ -122,7 +122,9 @@ class Course(Document):
                 ]
             }
 
-        return [transform(lesson_group) for lesson_group in outline_lessons]
+        return [transform(list(lesson_group))
+                for _, lesson_group in groupby(
+                    outline_lessons, lambda x: x.module_id)]
 
     def get_instructors(self):
         return Instructor.find_by_course(self)
