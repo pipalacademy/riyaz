@@ -96,8 +96,10 @@ class Course(Document):
     def get_module(self, name):
         return Module.find(course_id=self.id, name=name)
 
-    def get_lesson(self, name):
-        return Lesson.find(course_id=self.id, name=name)
+    def get_lesson(self, module_name, lesson_name):
+        module = self.get_module(module_name)
+        return Lesson.find(
+            course_id=self.id, module_id=module.id, name=lesson_name)
 
     def get_outline(self):
         outline_lessons = get_db().select(
@@ -207,16 +209,30 @@ class Lesson(Document):
     def get_course(self):
         return Course.find(id=self.course_id)
 
+    def get_module(self):
+        return Module.find(id=self.module_id)
+
     def get_preview(self):
         return dict(id=self.id, name=self.name, title=self.title)
 
+    def get_url(self):
+        course = self.get_course()
+        module = self.get_module()
+        return f"/courses/{course.key}/{module.name}/{self.name}"
+
+    def get_label(self):
+        """Return a label `{module_index}.{lesson_index}`, like 1.1, 2.4
+        """
+        row = CourseOutline.find(lesson_id=self.id)
+        return row and f"{row.module_index}.{row.lesson_index}"
+
     def get_next(self):
-        row = get_db().select("course_outline", lesson_id=self.id).first()
+        row = CourseOutline.find(lesson_id=self.id)
         return row and row.next_lesson_id and Lesson.find(id=row.next_lesson_id) or None
 
     def get_prev(self):
-        row = get_db().select("course_outline", lesson_id=self.id).first()
-        return row and row.next_lesson_id and Lesson.find(id=row.next_lesson_id) or None
+        row = CourseOutline.find(lesson_id=self.id)
+        return row and row.prev_lesson_id and Lesson.find(id=row.prev_lesson_id) or None
 
 
 class CourseOutline(Document):
