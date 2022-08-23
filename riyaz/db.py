@@ -45,7 +45,6 @@ class Document(BaseModel):
         return docs and docs[0] or None
 
     @classmethod
-    @query_memoize
     def find_all(cls, **kwargs):
         rows = get_db().where(cls._TABLE, **kwargs)
         return [cls(**row) for row in rows]
@@ -195,6 +194,9 @@ class Module(Document):
 
     def get_lessons(self):
         return Lesson.find_all(module_id=self.id)
+
+    def get_lesson(self, name):
+        return Lesson.find(module_id=self.id, name=name)
 
 class Lesson(Document):
     _TABLE = "lesson"

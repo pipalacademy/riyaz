@@ -11,7 +11,8 @@ setup(
         "pydantic>=1.9.2",
         "PyYAML>=6.0",
         "python-frontmatter==1.0.0",
-        "cookiecutter==2.1.1"
+        "cookiecutter==2.1.1",
+        "watchdog==2.1.9"
     ],
     url="https://github.com/pipalacademy/riyaz",
     packages=[*find_packages(), "cookiecutter-course"],
