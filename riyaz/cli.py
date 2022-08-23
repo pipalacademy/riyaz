@@ -9,33 +9,46 @@ The CLI can run these commands:
                     server
     - `riyaz pull`: Pull a Riyaz course from a remote server
 """
+import contextlib
+import os
+import tempfile
 from pathlib import Path
 
 import click
 
 from riyaz import disk
 from riyaz import doctypes
+from riyaz import config
 from riyaz.app import app
 from riyaz.migrate import migrate
-from riyaz.sample_data import load_sample_data
 
 
 @click.group()
 def main():
+    """
+    Riyaz CLI tool to help with local development of courses.
+    """
     pass
 
 
-@main.command()
+@main.command(short_help="start serving course from local directory")
 def serve():
-    setup_db()
-    app.run()
+    """Start serving course from local directory
+
+    Starts a live server that loads course from current directory,
+    and watches for file changes to reload.
+    """
+    with setup_db():
+        app.run()
 
 
+@contextlib.contextmanager
 def setup_db():
-    migrate()
-    sample_data_path = Path(__file__).parent.parent.resolve() / "sample_data"
-    load_sample_data(sample_data_path)
+    with tempfile.TemporaryDirectory(prefix="riyaz_") as tempdir:
+        config.database_path = os.path.join(tempdir, "riyaz.db")
+        migrate()
 
-    workdir = Path.cwd()
-    course_model = disk.get_course_from_directory(workdir)
-    doctypes.Course.save_from_model(course_model)
+        course_model = disk.get_course_from_directory(Path.cwd())
+        doctypes.Course.save_from_model(course_model)
+
+        yield
