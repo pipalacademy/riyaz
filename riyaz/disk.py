@@ -4,8 +4,9 @@ pydantic models and utility functions for parsing the on-disk courses go here.
 from __future__ import annotations
 
 import re
+from itertools import tee
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Iterator, List, Optional, Tuple
 
 import frontmatter
 import yaml
@@ -146,6 +147,7 @@ class CourseLoader:
         ]
         course.set_instructors(*instructors)
 
+        course_outline = []
         for m_idx, chapter in enumerate(parsed_course.outline, start=1):
             module = self._load_chapter(
                 course_id=course.id, index=m_idx, chapter=chapter
@@ -160,6 +162,18 @@ class CourseLoader:
                     lesson=parsed_lesson,
                 )
                 lesson.save()
+
+                lesson_outline = self._load_lesson_outline(
+                    course.id,
+                    module.id,
+                    lesson.id,
+                    module_index=m_idx,
+                    lesson_index=l_idx,
+                )
+                course_outline.append(lesson_outline)
+
+        course_outline = self._load_outline(course_outline)
+        course.set_outline(course_outline)
 
         return course
 
@@ -203,3 +217,44 @@ class CourseLoader:
             about=author.about,
             photo_path=author.photo,
         )
+
+    def _load_lesson_outline(
+        self,
+        course_id: int,
+        module_id: int,
+        lesson_id: int,
+        module_index: int,
+        lesson_index: int,
+    ) -> db.CourseOutline:
+        return db.CourseOutline(
+            course_id=course_id,
+            module_id=module_id,
+            lesson_id=lesson_id,
+            module_index=module_index,
+            lesson_index=lesson_index,
+        )
+
+    def _load_outline(
+        self, lesson_outlines: List[db.CourseOutline]
+    ) -> List[db.CourseOutline]:
+        for prev, this, next_ in iter_prevnext(lesson_outlines):
+            this.prev_lesson_id = prev and prev.lesson_id or None
+            this.prev_lesson_index = prev and prev.lesson_index or None
+
+            this.next_lesson_id = next_ and next_.lesson_id or None
+            this.next_lesson_index = next_ and next_.lesson_index or None
+
+        return lesson_outlines
+
+
+def iter_prevnext(ls: List[Any]) -> Iterator[Tuple[Any, Any, Any]]:
+    if not ls:
+        yield from ()  # empty iterator
+
+    ls = [None, *ls, None]
+    a, b, c = tee(ls, 3)
+    next(b), next(c), next(c)
+
+    for next_ in c:
+        prev, this = next(a), next(b)
+        yield prev, this, next_

@@ -4,7 +4,7 @@ from __future__ import annotations
 import web
 import functools
 from pydantic import BaseModel
-from typing import Optional
+from typing import List, Optional
 from . import config
 
 class SqliteDB(web.db.SqliteDB):
@@ -99,8 +99,30 @@ class Course(Document):
         return Lesson.find(course_id=self.id, name=name)
 
     def get_outline(self):
-        # TODO: fixme
-        return []
+        outline_lessons = get_db().select(
+            "course_outline",
+            where="course_id = $course_id",
+            order="module_index, lesson_index",
+            group="module_id",
+            vars={"course_id": self.id})
+
+        def transform(lesson_group):
+            first = lesson_group[0]
+            module = Module.find(id=first["module_id"])
+            return {
+                "name": module.name,
+                "title": module.title,
+                "index": first["module_index"],
+                "lessons": [
+                    {
+                        **Lesson.find(id=outline["lesson_id"]).get_preview(),
+                        "index": outline["lesson_index"],
+                    }
+                    for outline in lesson_group
+                ]
+            }
+
+        return [transform(lesson_group) for lesson_group in outline_lessons]
 
     def get_instructors(self):
         return Instructor.find_by_course(self)
@@ -111,9 +133,26 @@ class Course(Document):
             where="course_id = $course_id", vars={"course_id": self.id})
 
         for idx, instructor in enumerate(instructors):
+            if instructor.id is None:
+                instructor.save()
+
             get_db().insert(
                 "course_instructor",
                 course_id=self.id, instructor_id=instructor.id, index_=idx)
+
+    def set_outline(self, outline: List[CourseOutline]):
+        assert self.id is not None  # should not be unsaved
+
+        get_db().delete(
+                "course_outline",
+                where="course_id = $course_id", vars={"course_id": self.id})
+
+        for lesson_outline in outline:
+            assert lesson_outline.course_id == self.id
+            lesson_outline.save()
+
+        return outline
+
 
 class Instructor(Document):
     _TABLE = "instructor"
@@ -176,3 +215,23 @@ class Lesson(Document):
     def get_prev(self):
         row = get_db().select("course_outline", lesson_id=self.id).first()
         return row and row.next_lesson_id and Lesson.find(id=row.next_lesson_id) or None
+
+
+class CourseOutline(Document):
+    _TABLE = "course_outline"
+
+    course_id: int
+
+    module_id: int
+    module_index: int
+
+    lesson_id: int
+    lesson_index: int
+
+    prev_lesson_id: Optional[int]
+    prev_lesson_index: Optional[int]
+
+    next_lesson_id: Optional[int]
+    next_lesson_index: Optional[int]
+
+    orphan: Optional[bool]
