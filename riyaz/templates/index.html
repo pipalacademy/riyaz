@@ -1,10 +1,21 @@
 {% extends "base.html" %}
 
+{#
+Context:
+    - course:
+        - key: str
+        - title: str
+        - short_description: str
+        - get_instructors() ->
+            - list[]
+                - name: str
+#}
+
 {% macro Course(course) %}
 <div class="card mb-3">
     <div class="card-body">
         <h5 class="card-title">{{ course.title }}</h5>
-        <h6 class="card-subtitle mb-2 text-muted">By {{ course.authors|map(attribute='name')|join(', ') }}</h6>
+        <h6 class="card-subtitle mb-2 text-muted">By {{ course.get_instructors()|map(attribute='name')|join(', ') }}</h6>
         <p>{{ course.short_description }}</p>
         <a href="/courses/{{ course.key }}" class="btn btn-primary">Take this course</a>
     </div>
