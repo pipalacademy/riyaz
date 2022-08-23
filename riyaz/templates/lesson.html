@@ -1,5 +1,26 @@
 {% extends "base.html" %}
 
+{#
+Context needed:
+    - course:
+        - key: str
+        - title: str
+    - lesson:
+        - title: str
+        - content: str
+        - get_label() -> str
+        - get_module() ->
+            - title: str
+        - get_prev() ->
+            - title: str
+            - get_label() -> str
+            - get_url() -> str
+        - get_next() ->
+            - title: str
+            - get_label() -> str
+            - get_url() -> str
+#}
+
 {% block title %}
 {{ lesson.title }}
 {% endblock %}
@@ -25,8 +46,8 @@
 {% endmacro %}
 
 {% macro LessonIndex(lesson) -%}
-{% set module_i, lesson_i = lesson.index %}
-{{ module_i }}.{{ lesson_i }}
+{% set label = lesson.get_label() %}
+{{ label if label }}
 {%- endmacro %}
 
 {% macro LessonHeader(course, lesson) %}
@@ -63,24 +84,26 @@
 {% endmacro %}
 
 {% macro LessonFooter(course, lesson) %}
-{% set module = lesson.module %}
+{% set prev_lesson = lesson.get_prev() %}
+{% set next_lesson = lesson.get_next() %}
+
 <div class="text-bg-dark">
     <div class="container py-4">
         <div class="d-flex justify-content-between">
             <div class="text-start">
-                {% if lesson.previous %}
-                <a class="text-light text-decoration-none" href="{{ lesson.previous.get_url() }}">&#x2190; Previous</a>
+                {% if prev_lesson %}
+                <a class="text-light text-decoration-none" href="{{ prev_lesson.get_url() }}">&#x2190; Previous</a>
                 <div class="text-muted">
-                    {{ LessonIndex(lesson.previous) }} {{ lesson.previous.title }}
+                    {{ LessonIndex(prev_lesson) }} {{ prev_lesson.title }}
                 </div>
                 {% endif %}
             </div>
 
             <div class="text-end">
-                {% if lesson.next %}
-                <a class="text-light text-decoration-none" href="{{ lesson.next.get_url() }}">Next &#x2192;</a>
+                {% if next_lesson %}
+                <a class="text-light text-decoration-none" href="{{ next_lesson.get_url() }}">Next &#x2192;</a>
                 <div class="text-muted">
-                    {{ LessonIndex(lesson.next) }} {{ lesson.next.title }}
+                    {{ LessonIndex(next_lesson) }} {{ next_lesson.title }}
                 </div>
                 {% endif %}
             </div>
