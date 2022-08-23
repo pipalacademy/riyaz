@@ -12,7 +12,8 @@ import yaml
 from pydantic import BaseModel, validate_arguments, validator
 from pydantic.types import DirectoryPath, FilePath
 
-from .models import Author, Chapter, Course, Lesson
+from . import models
+from . import db
 
 
 class DiskChapter(BaseModel):
@@ -28,9 +29,11 @@ class DiskChapter(BaseModel):
 
         return v
 
-    def parse(self) -> Chapter:
+    def parse(self) -> models.Chapter:
         lessons = [get_lesson_from_path(path) for path in self.lessons]
-        return Chapter(name=self.name, title=self.title, lessons=lessons)
+        return models.Chapter(
+            name=self.name, title=self.title, lessons=lessons
+        )
 
 
 class DiskCourse(BaseModel):
@@ -61,19 +64,17 @@ class DiskCourse(BaseModel):
         path = get_author_file_path(self.base_dir, key)
         fm = frontmatter.load(path)
 
-        return Author(
+        return models.Author(
             key=key,
             name=fm.get("name"),
             photo=fm.get("photo"),
             about=fm.content,
         )
 
-    def parse(self) -> Course:
-        authors = [
-            self.get_author_from_key(key) for key in self.authors
-        ]
+    def parse(self) -> models.Course:
+        authors = [self.get_author_from_key(key) for key in self.authors]
         outline = [disk_chapter.parse() for disk_chapter in self.outline]
-        return Course(
+        return models.Course(
             name=self.name,
             title=self.title,
             short_description=self.short_description,
@@ -84,7 +85,7 @@ class DiskCourse(BaseModel):
 
 
 @validate_arguments
-def get_course_from_directory(directory: DirectoryPath) -> Course:
+def get_course_from_directory(directory: DirectoryPath) -> models.Course:
     disk_course = read_config(directory / "course.yml")
     return disk_course.parse()
 
@@ -101,13 +102,13 @@ def read_config(path: FilePath) -> DiskCourse:
 
 
 @validate_arguments
-def get_lesson_from_path(path: FilePath) -> Lesson:
+def get_lesson_from_path(path: FilePath) -> models.Lesson:
     name = path.name.split(".", 1)[0]
     with open(path) as f:
         content = f.read()
         title = get_first_heading(content) or titlify(name)
 
-    return Lesson(name=name, title=title, content=content)
+    return models.Lesson(name=name, title=title, content=content)
 
 
 def get_author_file_path(base_dir: DirectoryPath, key: str):
@@ -128,3 +129,77 @@ def titlify(s: str) -> str:
     unsymbol = re.sub(to_replace, " ", s)
 
     return unsymbol.title()
+
+
+class CourseLoader:
+    def __init__(self, path: DirectoryPath):
+        self.path = path
+
+    def load(self):
+        parsed_course = get_course_from_directory(self.path)
+        course = self._load_course(parsed_course)
+        course.save()
+
+        instructors = [
+            self._load_author(idx, author)
+            for idx, author in enumerate(parsed_course.authors)
+        ]
+        course.set_instructors(*instructors)
+
+        for m_idx, chapter in enumerate(parsed_course.outline, start=1):
+            module = self._load_chapter(
+                course_id=course.id, index=m_idx, chapter=chapter
+            )
+            module.save()
+
+            for l_idx, parsed_lesson in enumerate(chapter.lessons, start=1):
+                lesson = self._load_lesson(
+                    course_id=course.id,
+                    module_id=module.id,
+                    index=l_idx,
+                    lesson=parsed_lesson,
+                )
+                lesson.save()
+
+        return course
+
+    def _load_course(self, course: models.Course) -> db.Course:
+        return db.Course(
+            key=course.name,
+            title=course.title,
+            short_description=course.short_description,
+            description=course.description,
+        )
+
+    def _load_chapter(
+        self, course_id: int, index: int, chapter: models.Chapter
+    ) -> db.Module:
+        return db.Module(
+            course_id=course_id,
+            name=chapter.name,
+            title=chapter.title,
+            index_=index,
+        )
+
+    def _load_lesson(
+        self, course_id: int, module_id: int, index: int, lesson: models.Lesson
+    ) -> db.Lesson:
+        return db.Lesson(
+            course_id=course_id,
+            module_id=module_id,
+            name=lesson.name,
+            title=lesson.title,
+            content=lesson.content,
+            index_=index,
+        )
+
+    def _load_author(
+        self, course_id: int, author: models.Author
+    ) -> db.Instructor:
+        return db.Instructor(
+            course_id=course_id,
+            key=author.key,
+            name=author.name,
+            about=author.about,
+            photo_path=author.photo,
+        )

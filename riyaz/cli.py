@@ -21,6 +21,7 @@ from riyaz import disk
 from riyaz import doctypes
 from riyaz import config
 from riyaz.app import app
+from riyaz.disk import CourseLoader
 from riyaz.migrate import migrate
 
 
@@ -48,7 +49,6 @@ def new():
     """Setup a new Riyaz course from default template.
     """
     template_path = Path(__file__).parent.parent / "cookiecutter-course/"
-    print(template_path)
     cookiecutter(str(template_path))
 
 
@@ -58,7 +58,7 @@ def setup_db():
         config.database_path = os.path.join(tempdir, "riyaz.db")
         migrate()
 
-        course_model = disk.get_course_from_directory(Path.cwd())
-        doctypes.Course.save_from_model(course_model)
+        loader = CourseLoader(Path.cwd())
+        course = loader.load()
 
-        yield
+        yield course
