@@ -7,6 +7,10 @@ description: |
 
   Can be **bold**, *italic*, __underlined__, `code`.
 
+  ```python
+  import sample
+  ```
+
 authors:
   - alice
 outline:

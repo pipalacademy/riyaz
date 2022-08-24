@@ -1,37 +1,34 @@
 import pytest
 
-
-@pytest.fixture(autouse=True)
-def change_workdir(monkeypatch, data_dir):
-    monkeypatch.chdir(data_dir)
+from riyaz.disk import read_config
 
 
-def test_get_course(model_course):
-    course = model_course
+class TestGetCourse:
+    @pytest.fixture(autouse=True)
+    def change_workdir(self, monkeypatch, course_dir):
+        self.course_dir = course_dir
+        monkeypatch.chdir(course_dir)
 
-    assert len(course.authors) == 2
-    assert len(course.outline) == 2
+    @pytest.fixture
+    def disk_course(self):
+        return read_config(self.course_dir / "course.yml")
 
-    assert (
-        course.outline[0].lessons[1].content.strip("\n")
-        == "### something more about sample"
-    )
-    assert course.outline[0].lessons[0].title == "How To Use Sample"
+    def test_get_course(self, disk_course):
+        course = disk_course.parse()
 
-    assert course.outline[1].lessons[0].name == "more-use-cases-of-sample"
-    assert course.outline[1].lessons[0].title == "Use cases of Sample"
+        assert len(course.authors) == 1
+        assert len(course.outline) == 1
+        assert len(course.outline[0].lessons) == 2
 
-    alfa_author = course.authors[0]
-    assert alfa_author.key == "alfa"
-    assert alfa_author.name == "Alfa"
-    assert alfa_author.photo is None
-    assert (
-        alfa_author.about.strip()
-        == "Alfa is a good person who can write in *italics* and `code`."
-    )
+        for module in course.outline:
+            assert module.name is not None
+            assert module.title is not None
+            for lesson in module.lessons:
+                for key in ["content", "title", "name"]:
+                    assert getattr(lesson, key, None) is not None
 
-    bravo_author = course.authors[1]
-    assert bravo_author.key == "bravo"
-    assert bravo_author.name == "Bravo Bob"
-    assert bravo_author.photo == "https://example.com"
-    assert bravo_author.about.strip() == "Bravo"
+        author = course.authors[0]
+        assert author.key == "alice"
+        assert author.name == "Alice"
+        assert author.about is not None
+        assert author.photo is None
