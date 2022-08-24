@@ -1,2 +1,3 @@
 pytest
 mkdocs-material
+pytest-cov==3.0.0
