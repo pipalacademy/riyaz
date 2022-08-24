@@ -5,6 +5,8 @@ from pathlib import Path
 import pytest
 from pydantic import BaseModel, HttpUrl, validator
 
+from riyaz import config
+from riyaz.db import get_db as _get_db
 from riyaz.disk import read_config
 
 
@@ -28,3 +30,10 @@ def disk_course(course_dir):
 
     config = read_config(course_yml)
     return config
+
+
+@pytest.fixture(scope="module")
+def get_db():
+    with tempfile.TemporaryDirectory(prefix="test_riyaz_") as tempdir:
+        config.database_path = str(Path(tempdir) / "riyaz.db")
+        yield _get_db
