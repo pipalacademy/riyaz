@@ -7,7 +7,7 @@ def main():
     migrate()
 
     if "--load-sample-data" in sys.argv:
-        load_sample_data("sample_data")
+        load_sample_data("sample_courses")
     else:
         app.run()
 
