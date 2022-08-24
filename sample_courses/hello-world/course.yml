@@ -1,0 +1,17 @@
+name: hello-world
+title: Hello, World!
+
+short_description: Sample short description
+description: |
+  This area supports markdown text.
+
+  Can be **bold**, *italic*, __underlined__, `code`.
+
+authors:
+  - alice
+outline:
+    - name: getting-started
+      title: Getting started
+      lessons:
+        - getting-started/riyaz-terminology.md
+        - getting-started/course-yml.md
