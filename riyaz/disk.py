@@ -174,6 +174,7 @@ class CourseLoader:
 
         course_outline = self._load_outline(course_outline)
         course.set_outline(course_outline)
+        course.update_version()
 
         return course
 

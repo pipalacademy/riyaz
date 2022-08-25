@@ -2,7 +2,7 @@ from flask import Flask, abort, render_template
 
 import markdown
 
-from .doctypes import Course
+from .db import Course, Store
 
 
 app = Flask("riyaz")
@@ -36,3 +36,12 @@ def view_lesson(course_name: str, module_name: str, lesson_name: str):
         abort(404)
 
     return render_template("lesson.html", course=course, lesson=lesson)
+
+
+@app.route("/api/courses/<name>/version")
+def get_course_version(name: str):
+    version = Store.get(name)
+    status_code = 404 if version is None else 200
+    response = {"version": version}
+
+    return response, status_code

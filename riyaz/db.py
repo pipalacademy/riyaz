@@ -3,6 +3,8 @@
 from __future__ import annotations
 import web
 import functools
+import random
+import string
 from itertools import groupby
 from pydantic import BaseModel
 from typing import List, Optional
@@ -156,6 +158,11 @@ class Course(Document):
 
         return outline
 
+    def update_version(self):
+        hash_value = get_random_string(16)
+        Store.set(self.key, hash_value)
+        return hash_value
+
 
 class Instructor(Document):
     _TABLE = "instructor"
@@ -191,6 +198,10 @@ class Module(Document):
     name: str
     title: str
     index_: int
+
+    @classmethod
+    def new(cls, course: Course, name: str, title: str, index_: int = 1):
+        return cls(...)
 
     def get_lessons(self):
         return Lesson.find_all(module_id=self.id)
@@ -255,3 +266,29 @@ class CourseOutline(Document):
     next_lesson_index: Optional[int]
 
     orphan: Optional[bool]
+
+
+class Store(Document):
+    _TABLE = "store"
+
+    key: str
+    value: str
+
+    @classmethod
+    def get(cls, key):
+        row = cls.find(key=str(key))
+        return row and row.value or None
+
+    @classmethod
+    def set(cls, key, value):
+        if kv := cls.find(key=key):
+            kv.value = value
+        else:
+            kv = cls(key=key, value=value)
+
+        return kv.save()
+
+
+def get_random_string(length):
+    return "".join([ch for _ in range(length)
+                    for ch in random.choice(string.ascii_letters)])
