@@ -83,7 +83,7 @@ Context needed:
     {% for instructor in course.get_instructors() %}
     <div id="author-{{ instructor.key }}" class="row mb-3">
         <div class="col-12 col-sm-4 col-md-3 col-lg-2 text-center">
-            <img class="rounded-circle" style="width: 100%; max-height: 128px; max-width: 128px;" src="{{ instructor.photo }}" />
+            <img class="rounded-circle" style="width: 100%; max-height: 128px; max-width: 128px;" src="{{ instructor.photo_path }}" />
         </div>
         <div class="col">
             <div class="pt-3">
