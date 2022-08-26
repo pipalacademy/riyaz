@@ -363,7 +363,7 @@ class Asset(Document):
     def update_timestamps(self):
         now = datetime.now()
 
-        if self.id is None:
+        if self.id is None or self.created is None:
             self.created = now
 
         self.last_modified = now
