@@ -323,7 +323,8 @@ class Asset(Document):
         return f"{self.collection}/{self.collection_id}/{self.filename}"
 
     def _construct_asset_path(self):
-        assert "/" not in self.filename, "filename should not be a path"
+        if "/" in self.filename:
+            assert ValueError(f"Filename '{self.filename}' cannot be a path")
 
         full_identifier = self._get_full_identifier()
         return Path(config.assets_path) / full_identifier
@@ -335,7 +336,8 @@ class Asset(Document):
         return f"{assets_root}{full_identifier}"
 
     def save_file(self, on_disk_path: Path):
-        assert on_disk_path.is_file()
+        if not on_disk_path.is_file():
+            raise ValueError(f"Path {str(on_disk_path)} is not a file")
 
         asset_path = self._construct_asset_path()
 
