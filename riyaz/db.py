@@ -341,17 +341,23 @@ class Asset(Document):
 
         asset_path = self._construct_asset_path()
 
-        stat = on_disk_path.stat()
-        filesize, created, last_modified = (
-            stat.st_size, int(stat.st_ctime), int(stat.st_mtime))
+        filesize = on_disk_path.stat().st_size
+        self.filesize = filesize
 
         asset_path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(on_disk_path, asset_path)
 
-        self.update(
-            filesize=filesize, created=created, last_modified=last_modified)
+        self.update_timestamps()
 
         return asset_path
+
+    def update_timestamps(self):
+        now = datetime.datetime()
+
+        if self.id is None:
+            self.created = now
+
+        self.last_modified = now
 
 
 def get_random_string(length):
