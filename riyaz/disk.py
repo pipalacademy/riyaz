@@ -6,11 +6,11 @@ from __future__ import annotations
 import re
 from itertools import tee
 from pathlib import Path
-from typing import Any, Iterator, List, Optional, Tuple, Union
+from typing import Any, Iterator, List, Optional, Tuple
 
 import frontmatter
 import yaml
-from pydantic import BaseModel, HttpUrl, validate_arguments, validator
+from pydantic import BaseModel, validate_arguments, validator
 from pydantic.types import DirectoryPath, FilePath
 
 from . import models
@@ -256,7 +256,7 @@ class CourseLoader:
     def _set_instructor_photo(
         self,
         instructor: db.Instructor,
-        on_disk_photo: Optional[Union[FilePath, HttpUrl]],
+        on_disk_photo: Optional[FilePath],
     ) -> Optional[db.Asset]:
         if on_disk_photo is None:
             instructor.photo_path = None

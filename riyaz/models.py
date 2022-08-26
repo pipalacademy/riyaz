@@ -3,9 +3,9 @@ pydantic models that we use for APIs will go here.
 """
 from __future__ import annotations
 
-from typing import List, Optional, Union
+from typing import List, Optional
 
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel
 from pydantic.types import FilePath
 
 
@@ -25,7 +25,7 @@ class Author(BaseModel):
     key: str
     name: str
     about: Optional[str]
-    photo: Optional[Union[HttpUrl, FilePath]]
+    photo: Optional[FilePath]
 
 
 class Course(BaseModel):
