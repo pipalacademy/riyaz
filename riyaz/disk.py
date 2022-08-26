@@ -266,7 +266,6 @@ class CourseLoader:
         filename = on_disk_photo.name
         asset = instructor.get_asset(filename) or instructor.new_asset(filename)
         asset.save_file(on_disk_photo)
-        asset.save()
 
         instructor.photo_path = asset.get_url()
         instructor.save()

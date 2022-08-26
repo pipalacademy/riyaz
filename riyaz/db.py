@@ -348,6 +348,7 @@ class Asset(Document):
         shutil.copyfile(on_disk_path, asset_path)
 
         self.update_timestamps()
+        self.save()
 
         return asset_path
 
