@@ -66,7 +66,7 @@ create table course_outline (
 
 create table store (
     id integer primary key,
-    key unique,
+    key text unique,
     value text
 );
 
