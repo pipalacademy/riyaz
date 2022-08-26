@@ -64,6 +64,24 @@ create table course_outline (
     orphan boolean default('f')
 );
 
+create table store (
+    id integer primary key,
+    key unique,
+    value text
+);
+
+create table asset (
+    id integer primary key,
+
+    collection text,
+    collection_id int,
+    filename text,
+
+    filesize int,
+    created datetime,
+    last_modified datetime
+);
+
 -- create view course_outline_view as
 -- select
 --     course_outline.*,

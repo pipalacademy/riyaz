@@ -4,8 +4,11 @@ from __future__ import annotations
 import web
 import functools
 import random
+import shutil
 import string
+from datetime import datetime
 from itertools import groupby
+from pathlib import Path
 from pydantic import BaseModel
 from typing import List, Optional
 from . import config
@@ -163,6 +166,12 @@ class Course(Document):
         Store.set(self.key, hash_value)
         return hash_value
 
+    def new_asset(self, filename: str) -> Asset:
+        assert self.id is not None
+
+        return Asset(
+            collection="courses", collection_id=self.id, filename=filename)
+
 
 class Instructor(Document):
     _TABLE = "instructor"
@@ -183,6 +192,16 @@ class Instructor(Document):
         return Course.select(
             join={"course_instructor": "course_instructor.course_id=course.id"},
             where="course_instructor.instructor_id=$id", vars={"id": self.id})
+
+    def new_asset(self, filename: str) -> Asset:
+        assert self.id is not None
+
+        return Asset(
+            collection="instructors", collection_id=self.id, filename=filename)
+
+    def get_asset(self, filename: str) -> Optional[Asset]:
+        return Asset.find(
+            collection="instructors", collection_id=self.id, filename=filename)
 
     @classmethod
     def find_by_course(cls, course):
@@ -287,6 +306,50 @@ class Store(Document):
             kv = cls(key=key, value=value)
 
         return kv.save()
+
+
+class Asset(Document):
+    _TABLE = "asset"
+
+    collection: str
+    collection_id: int
+    filename: str
+
+    filesize: Optional[int]
+    created: Optional[datetime]
+    last_modified: Optional[datetime]
+
+    def _get_full_identifier(self):
+        return f"{self.collection}/{self.collection_id}/{self.filename}"
+
+    def _construct_asset_path(self):
+        assert "/" not in self.filename, "filename should not be a path"
+
+        full_identifier = self._get_full_identifier()
+        return Path(config.assets_path) / full_identifier
+
+    def get_url(self):
+        assets_root = "/assets/"
+
+        full_identifier = self._get_full_identifier()
+        return f"{assets_root}{full_identifier}"
+
+    def save_file(self, on_disk_path: Path):
+        assert on_disk_path.is_file()
+
+        asset_path = self._construct_asset_path()
+
+        stat = on_disk_path.stat()
+        filesize, created, last_modified = (
+            stat.st_size, int(stat.st_ctime), int(stat.st_mtime))
+
+        asset_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(on_disk_path, asset_path)
+
+        self.update(
+            filesize=filesize, created=created, last_modified=last_modified)
+
+        return asset_path
 
 
 def get_random_string(length):
