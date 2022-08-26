@@ -12,7 +12,7 @@ create table instructor (
     key text unique,
     name text not null,
     about text,
-    photo_path text
+    photo_id integer references asset
 );
 
 create table course_instructor (

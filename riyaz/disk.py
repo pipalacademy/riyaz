@@ -259,15 +259,16 @@ class CourseLoader:
         on_disk_photo: Optional[FilePath],
     ) -> Optional[db.Asset]:
         if on_disk_photo is None:
-            instructor.photo_path = None
+            instructor.set_photo(None)
             instructor.save()
             return None
 
         filename = on_disk_photo.name
+
         asset = instructor.get_asset(filename) or instructor.new_asset(filename)
         asset.save_file(on_disk_photo)
 
-        instructor.photo_path = asset.get_url()
+        instructor.set_photo(asset)
         instructor.save()
 
         return asset

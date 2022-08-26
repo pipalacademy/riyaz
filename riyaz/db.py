@@ -10,7 +10,7 @@ from datetime import datetime
 from itertools import groupby
 from pathlib import Path
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Union
 from . import config
 
 class SqliteDB(web.db.SqliteDB):
@@ -179,7 +179,7 @@ class Instructor(Document):
     key: str
     name: str
     about: str
-    photo_path: Optional[str]
+    photo_id: Optional[int]
 
     def get_preview(self):
         return {"id": self.id, "key": self.key, "name": self.name}
@@ -202,6 +202,14 @@ class Instructor(Document):
     def get_asset(self, filename: str) -> Optional[Asset]:
         return Asset.find(
             collection="instructors", collection_id=self.id, filename=filename)
+
+    def get_photo_url(self) -> Optional[str]:
+        asset = self.photo_id and Asset.find(id=self.photo_id)
+        return asset and asset.get_url() or None
+
+    def set_photo(self, asset: Union[Asset, None]):
+        self.photo_id = asset and asset.id or None
+        return self.photo_id
 
     @classmethod
     def find_by_course(cls, course):
