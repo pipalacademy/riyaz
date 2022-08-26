@@ -361,7 +361,7 @@ class Asset(Document):
         return asset_path
 
     def update_timestamps(self):
-        now = datetime.datetime()
+        now = datetime.now()
 
         if self.id is None:
             self.created = now
