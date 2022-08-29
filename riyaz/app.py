@@ -1,5 +1,8 @@
-from flask import Flask, abort, render_template, send_from_directory
+from flask import (
+    Flask, abort, render_template, send_from_directory
+)
 
+import importlib
 import markdown
 from typing import List
 
@@ -7,12 +10,13 @@ from . import config
 from .db import Course, Store
 
 
-# for plugins
-stylesheet_urls: List[str] = []
-javascript_urls: List[str] = []
-
-
 app = Flask("riyaz")
+
+javascript_urls: List[str] = []
+stylesheet_urls: List[str] = []
+plugins: List[str] = [
+    # "feather.riyaz_plugin",
+]
 
 
 @app.template_filter("markdown")
@@ -59,6 +63,8 @@ def serve_assets(path):
     return send_from_directory(config.assets_path, path)
 
 
+# plugins
+
 @app.context_processor
 def inject_plugins():
     return dict(
@@ -67,22 +73,15 @@ def inject_plugins():
     )
 
 
-# Plugin system
+@app.before_request
+def load_plugins():
+    for plugin_module in plugins:
+        importlib.import_module(plugin_module)
 
-def include_javascript(url: str):
-    javascript_urls.append(url)
 
-
-def include_stylesheet(url: str):
+def include_stylesheet(url):
     stylesheet_urls.append(url)
 
 
-if __name__ == "__main__":
-    # import plugins here to load them
-    # example:
-    # import feather_riyaz
-    #
-    # NOTE: not sure whether this works when app is served by gunicorn
-    # or some other WSGI server. it depends on how they load it
-
-    pass
+def include_javascript(url):
+    javascript_urls.append(url)
