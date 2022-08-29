@@ -4,7 +4,7 @@ from watchdog.events import FileSystemEventHandler
 
 
 @contextlib.contextmanager
-def setup_livereload(loader, path):
+def live_reload(loader, path):
 
     def callback(event):
         if event.is_directory:

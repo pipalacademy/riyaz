@@ -1,7 +1,8 @@
-from flask import Flask, abort, render_template
+from flask import Flask, abort, render_template, send_from_directory
 
 import markdown
 
+from . import config
 from .db import Course, Store
 
 
@@ -45,3 +46,8 @@ def get_course_version(name: str):
     response = {"version": version}
 
     return response, status_code
+
+
+@app.route("/assets/<path:path>")
+def serve_assets(path):
+    return send_from_directory(config.assets_path, path)

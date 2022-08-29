@@ -142,7 +142,7 @@ class CourseLoader:
         course.save()
 
         instructors = [
-            self._load_author(idx, author)
+            self._load_author(author)
             for idx, author in enumerate(parsed_course.authors)
         ]
         course.set_instructors(*instructors)
@@ -235,14 +235,12 @@ class CourseLoader:
         return db_lesson
 
     def _load_author(
-        self, course_id: int, author: models.Author
+        self, author: models.Author
     ) -> db.Instructor:
         fields = dict(
-            course_id=course_id,
             key=author.key,
             name=author.name,
             about=author.about,
-            photo_path=author.photo,
         )
 
         if db_instructor := db.Instructor.find(key=author.key):
@@ -250,7 +248,30 @@ class CourseLoader:
         else:
             db_instructor = db.Instructor(**fields)
 
+        db_instructor.save()
+        self._set_instructor_photo(db_instructor, author.photo)
+
         return db_instructor
+
+    def _set_instructor_photo(
+        self,
+        instructor: db.Instructor,
+        on_disk_photo: Optional[FilePath],
+    ) -> Optional[db.Asset]:
+        if on_disk_photo is None:
+            instructor.set_photo(None)
+            instructor.save()
+            return None
+
+        filename = on_disk_photo.name
+
+        asset = instructor.get_asset(filename) or instructor.new_asset(filename)
+        asset.save_file(on_disk_photo)
+
+        instructor.set_photo(asset)
+        instructor.save()
+
+        return asset
 
     def _load_lesson_outline(
         self,

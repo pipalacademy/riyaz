@@ -11,7 +11,7 @@ Context needed:
             - key: str
             - name: str
             - about: str
-            - photo_path: str
+            - get_photo_url() -> str
         - get_outline() -> list[]
             - name: str
             - title: str
@@ -40,7 +40,7 @@ Context needed:
         <a class="text-decoration-none text-light" href="#author-{{ instructor.key }}">
             <div class="d-flex align-items-center mb-1">
                 <span class="me-2">
-                    {{ Avatar(instructor.photo_path) }}
+                    {{ Avatar(instructor.get_photo_url()) }}
                 </span>
                 {{ instructor.name }}
             </div>
@@ -83,7 +83,7 @@ Context needed:
     {% for instructor in course.get_instructors() %}
     <div id="author-{{ instructor.key }}" class="row mb-3">
         <div class="col-12 col-sm-4 col-md-3 col-lg-2 text-center">
-            <img class="rounded-circle" style="width: 100%; max-height: 128px; max-width: 128px;" src="{{ instructor.photo }}" />
+            <img class="rounded-circle" style="width: 100%; max-height: 128px; max-width: 128px;" src="{{ instructor.get_photo_url() }}" />
         </div>
         <div class="col">
             <div class="pt-3">

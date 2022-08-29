@@ -4,10 +4,13 @@ from __future__ import annotations
 import web
 import functools
 import random
+import shutil
 import string
+from datetime import datetime
 from itertools import groupby
+from pathlib import Path
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Union
 from . import config
 
 class SqliteDB(web.db.SqliteDB):
@@ -163,6 +166,12 @@ class Course(Document):
         Store.set(self.key, hash_value)
         return hash_value
 
+    def new_asset(self, filename: str) -> Asset:
+        assert self.id is not None
+
+        return Asset(
+            collection="courses", collection_id=self.id, filename=filename)
+
 
 class Instructor(Document):
     _TABLE = "instructor"
@@ -170,7 +179,7 @@ class Instructor(Document):
     key: str
     name: str
     about: str
-    photo_path: Optional[str]
+    photo_id: Optional[int]
 
     def get_preview(self):
         return {"id": self.id, "key": self.key, "name": self.name}
@@ -183,6 +192,24 @@ class Instructor(Document):
         return Course.select(
             join={"course_instructor": "course_instructor.course_id=course.id"},
             where="course_instructor.instructor_id=$id", vars={"id": self.id})
+
+    def new_asset(self, filename: str) -> Asset:
+        assert self.id is not None
+
+        return Asset(
+            collection="instructors", collection_id=self.id, filename=filename)
+
+    def get_asset(self, filename: str) -> Optional[Asset]:
+        return Asset.find(
+            collection="instructors", collection_id=self.id, filename=filename)
+
+    def get_photo_url(self) -> Optional[str]:
+        asset = self.photo_id and Asset.find(id=self.photo_id)
+        return asset and asset.get_url() or None
+
+    def set_photo(self, asset: Union[Asset, None]):
+        self.photo_id = asset and asset.id or None
+        return self.photo_id
 
     @classmethod
     def find_by_course(cls, course):
@@ -287,6 +314,59 @@ class Store(Document):
             kv = cls(key=key, value=value)
 
         return kv.save()
+
+
+class Asset(Document):
+    _TABLE = "asset"
+
+    collection: str
+    collection_id: int
+    filename: str
+
+    filesize: Optional[int]
+    created: Optional[datetime]
+    last_modified: Optional[datetime]
+
+    def _get_full_identifier(self):
+        return f"{self.collection}/{self.collection_id}/{self.filename}"
+
+    def _construct_asset_path(self):
+        if "/" in self.filename:
+            assert ValueError(f"Filename '{self.filename}' cannot be a path")
+
+        full_identifier = self._get_full_identifier()
+        return Path(config.assets_path) / full_identifier
+
+    def get_url(self):
+        assets_root = "/assets/"
+
+        full_identifier = self._get_full_identifier()
+        return f"{assets_root}{full_identifier}"
+
+    def save_file(self, on_disk_path: Path):
+        if not on_disk_path.is_file():
+            raise ValueError(f"Path {str(on_disk_path)} is not a file")
+
+        asset_path = self._construct_asset_path()
+
+        filesize = on_disk_path.stat().st_size
+        self.filesize = filesize
+
+        asset_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(on_disk_path, asset_path)
+
+        self.update_timestamps()
+        self.save()
+
+        return asset_path
+
+    def update_timestamps(self):
+        now = datetime.now()
+
+        if self.id is None or self.created is None:
+            self.created = now
+
+        self.last_modified = now
 
 
 def get_random_string(length):

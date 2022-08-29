@@ -12,7 +12,7 @@ create table instructor (
     key text unique,
     name text not null,
     about text,
-    photo_path text
+    photo_id integer references asset
 );
 
 create table course_instructor (
@@ -62,6 +62,24 @@ create table course_outline (
     next_lesson_index integer,
 
     orphan boolean default('f')
+);
+
+create table store (
+    id integer primary key,
+    key text unique,
+    value text
+);
+
+create table asset (
+    id integer primary key,
+
+    collection text,
+    collection_id int,
+    filename text,
+
+    filesize int,
+    created datetime,
+    last_modified datetime
 );
 
 -- create view course_outline_view as

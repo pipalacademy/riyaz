@@ -23,7 +23,7 @@ from riyaz import config
 from riyaz.app import app
 from riyaz.disk import CourseLoader
 from riyaz.migrate import migrate
-from .livereload import setup_livereload
+from .livereload import live_reload
 
 
 @click.group()
@@ -44,9 +44,13 @@ def serve():
     course_dir = Path.cwd()
     loader = CourseLoader(course_dir)
 
-    with setup_db(), setup_livereload(loader=loader, path=course_dir):
+    with tempfile.TemporaryDirectory(prefix="riyaz_") as tempdir:
+        setup_db(tempdir)
+        setup_assets(tempdir)
+
         loader.load()
-        app.run()
+        with live_reload(loader, course_dir):
+            app.run()
 
 
 @main.command(short_help="setup a new course from template")
@@ -58,19 +62,11 @@ def new():
 
 
 @contextlib.contextmanager
-def setup_db():
-    with tempfile.TemporaryDirectory(prefix="riyaz_") as tempdir:
-        config.database_path = os.path.join(tempdir, "riyaz.db")
-        migrate()
-
-        yield
-
-
-def reset_db():
-    drop_db()
+def setup_db(tempdir):
+    config.database_path = os.path.join(tempdir, "riyaz.db")
     migrate()
 
 
-def drop_db():
-    if os.path.exists(config.database_path):
-        os.unlink(config.database_path)
+def setup_assets(tempdir):
+    config.assets_path = os.path.join(tempdir, "assets")
+    os.makedirs(config.assets_path, exist_ok=True)
