@@ -1,12 +1,18 @@
-from flask import Flask, abort, render_template, send_from_directory
+from flask import (
+    Flask, abort, render_template, send_from_directory
+)
 
 import markdown
+from typing import List
 
 from . import config
 from .db import Course, Store
 
 
 app = Flask("riyaz")
+
+javascript_urls: List[str] = []
+stylesheet_urls: List[str] = []
 
 
 @app.template_filter("markdown")
@@ -51,3 +57,25 @@ def get_course_version(name: str):
 @app.route("/assets/<path:path>")
 def serve_assets(path):
     return send_from_directory(config.assets_path, path)
+
+
+# plugins
+
+@app.context_processor
+def inject_plugins():
+    return dict(
+        javascript_urls=javascript_urls,
+        stylesheet_urls=stylesheet_urls,
+    )
+
+
+def include_stylesheet(url):
+    stylesheet_urls.append(url)
+
+
+def include_javascript(url):
+    javascript_urls.append(url)
+
+
+# import plugins here. for example:
+# import feather.riyaz_plugin
