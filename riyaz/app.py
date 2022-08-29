@@ -15,7 +15,7 @@ app = Flask("riyaz")
 javascript_urls: List[str] = []
 stylesheet_urls: List[str] = []
 plugins: List[str] = [
-    # "feather.riyaz_plugin",
+    "riyaz.plugins.feather",
 ]
 
 
