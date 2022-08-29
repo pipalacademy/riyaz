@@ -2,7 +2,6 @@ from flask import (
     Flask, abort, render_template, send_from_directory
 )
 
-import importlib
 import markdown
 from typing import List
 
@@ -14,9 +13,6 @@ app = Flask("riyaz")
 
 javascript_urls: List[str] = []
 stylesheet_urls: List[str] = []
-plugins: List[str] = [
-    # "feather.riyaz_plugin",
-]
 
 
 @app.template_filter("markdown")
@@ -73,15 +69,13 @@ def inject_plugins():
     )
 
 
-@app.before_request
-def load_plugins():
-    for plugin_module in plugins:
-        importlib.import_module(plugin_module)
-
-
 def include_stylesheet(url):
     stylesheet_urls.append(url)
 
 
 def include_javascript(url):
     javascript_urls.append(url)
+
+
+# import plugins here. for example:
+# import feather.riyaz_plugin
