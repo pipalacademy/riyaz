@@ -2,8 +2,11 @@ from riyaz.app import include_stylesheet, include_javascript
 from riyaz import config
 
 
+feather_config = getattr(config, "feather")
+
+
 def get_modes():
-    modes = getattr(config, "modes", ["python"])
+    modes = feather_config.get("modes", ["python"])
     return modes
 
 
