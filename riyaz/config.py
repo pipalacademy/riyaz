@@ -7,12 +7,24 @@ database_path = "riyaz.db"
 assets_path = "assets"
 
 
-if (config_path := Path("riyaz.yml")).exists():
-    with open(config_path, "r") as f:
-        _yml_config = yaml.safe_load(f)
+def load_config(path):
+    global database_path, assets_path
 
-    if "database_path" in _yml_config:
-        database_path = _yml_config["database_path"]
+    if path.exists():
+        with open(path, "r") as f:
+            yml_config = yaml.safe_load(f)
 
-    if "assets_path" in _yml_config:
-        assets_path = _yml_config["assets_path"]
+        if "database_path" in yml_config:
+            # resolve relative path
+            full_path = path.parent / Path(yml_config["database_path"])
+            database_path = str(full_path.resolve())
+
+        if "assets_path" in yml_config:
+            # resolve relative path
+            full_path = path.parent / Path(yml_config["assets_path"])
+            assets_path = str(full_path.resolve())
+
+    # TODO: implement config for extensions
+
+
+load_config(Path("riyaz.yml"))
