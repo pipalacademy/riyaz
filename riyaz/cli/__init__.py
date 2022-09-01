@@ -15,8 +15,8 @@ import tempfile
 from pathlib import Path
 
 import click
+import yaml
 from cookiecutter.main import cookiecutter
-from click import ClickException
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -116,5 +116,11 @@ def setup_assets(base_dir):
 
 
 def setup_config(base_dir):
-    # TODO: implement this
-    pass
+    config_path = os.path.join(base_dir, "riyaz.yml")
+    initial_config = {
+        "database_path": "riyaz.db",
+        "assets_path": "assets",
+    }
+
+    with open(config_path, "w") as f:
+        yaml.safe_dump(initial_config, f)
