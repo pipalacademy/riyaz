@@ -18,14 +18,27 @@ from pathlib import Path
 import click
 import yaml
 from cookiecutter.main import cookiecutter
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 
 from riyaz import config
 from riyaz.app import app
 from riyaz.disk import CourseLoader
 from riyaz.migrate import migrate
 from .livereload import live_reload
+
+
+class fmt:
+    error_style = {"fg": "red", "bold": True}
+    success_style = {"fg": "green", "bold": True}
+
+    @classmethod
+    def error(cls, message, exit=False, exit_code=1):
+        click.echo(click.style(message, **cls.error_style))
+        if exit:
+            sys.exit(exit_code)
+
+    @classmethod
+    def success(cls, message):
+        click.echo(click.style(message, **cls.success_style))
 
 
 @click.group()
@@ -95,17 +108,14 @@ def new_site(path):
     ```
     """
     if path.exists():
-        click.echo(click.style(
-            f"Directory {path} already exists", fg="red", bold=True))
-        sys.exit(1)
+        fmt.error(f"Directory {path} already exists", exit=True, exit_code=1)
 
     path.mkdir()
     setup_db(path)
     setup_assets(path)
     setup_config(path)
 
-    click.echo(click.style(
-        f"New Riyaz site created at {path}", fg="green", bold=True))
+    fmt.success(f"New Riyaz site created at {path}")
 
 
 @contextlib.contextmanager
