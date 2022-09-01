@@ -76,6 +76,7 @@ def new_site(sitename):
     This can be used to host multiple courses and persist state through
     restarts.
 
+    \b
     Example usage:
     ```
     $ riyaz new-site riyaz-prod
@@ -84,6 +85,7 @@ def new_site(sitename):
     assets riyaz.db riyaz.yml
     ```
 
+    \b
     To start the server, cd into the site directory and start a WSGI server
     with entrypoint `riyaz.app:app`.
     ```
