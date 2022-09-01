@@ -11,6 +11,7 @@ The CLI can run these commands:
 """
 import contextlib
 import os
+import sys
 import tempfile
 from pathlib import Path
 
@@ -94,6 +95,7 @@ def new_site(sitename):
     if sitename.exists():
         click.echo(click.style(
             f"Directory {sitename} already exists", fg="red", bold=True))
+        sys.exit(1)
 
     sitename.mkdir()
     setup_db(sitename)
