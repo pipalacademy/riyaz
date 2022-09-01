@@ -64,11 +64,11 @@ def new():
 
 
 @main.command(short_help="create a directory for persistent deployment")
-@click.argument("sitename", type=click.Path(path_type=Path))
-def new_site(sitename):
-    """Create a new Riyaz site at SITENAME.
+@click.argument("path", type=click.Path(path_type=Path))
+def new_site(path):
+    """Create a new Riyaz site at PATH.
 
-    SITENAME is a path to a directory that will be created. This directory
+    PATH is a path to a directory that will be created. This directory
     shouldn't exist prior to invoking this command.
 
     This directory will store data needed for a persistent Riyaz deployment,
@@ -94,18 +94,18 @@ def new_site(sitename):
     Starting web server ...
     ```
     """
-    if sitename.exists():
+    if path.exists():
         click.echo(click.style(
-            f"Directory {sitename} already exists", fg="red", bold=True))
+            f"Directory {path} already exists", fg="red", bold=True))
         sys.exit(1)
 
-    sitename.mkdir()
-    setup_db(sitename)
-    setup_assets(sitename)
-    setup_config(sitename)
+    path.mkdir()
+    setup_db(path)
+    setup_assets(path)
+    setup_config(path)
 
     click.echo(click.style(
-        f"New Riyaz site created at {sitename}", fg="green", bold=True))
+        f"New Riyaz site created at {path}", fg="green", bold=True))
 
 
 @contextlib.contextmanager
