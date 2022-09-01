@@ -16,6 +16,7 @@ from pathlib import Path
 
 import click
 from cookiecutter.main import cookiecutter
+from click import ClickException
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -61,12 +62,59 @@ def new():
     cookiecutter(str(template_path))
 
 
+@main.command(short_help="create a directory for persistent deployment")
+@click.argument("sitename", type=click.Path(path_type=Path))
+def new_site(sitename):
+    """Create a new Riyaz site at SITENAME.
+
+    SITENAME is a path to a directory that will be created. This directory
+    shouldn't exist prior to invoking this command.
+
+    This directory will store data needed for a persistent Riyaz deployment,
+    like database, configuration, and assets.
+    This can be used to host multiple courses and persist state through
+    restarts.
+
+    Example usage:
+    ```
+    $ riyaz new-site riyaz-prod
+    New Riyaz site created at riyaz-prod.
+    $ ls riyaz-prod/
+    assets riyaz.db riyaz.yml
+    ```
+
+    To start the server, cd into the site directory and start a WSGI server
+    with entrypoint `riyaz.app:app`.
+    ```
+    $ cd riyaz-prod
+    $ gunicorn riyaz.app:app
+    Starting web server ...
+    ```
+    """
+    if sitename.exists():
+        click.echo(click.style(
+            f"Directory {sitename} already exists", fg="red", bold=True))
+
+    sitename.mkdir()
+    setup_db(sitename)
+    setup_assets(sitename)
+    setup_config(sitename)
+
+    click.echo(click.style(
+        f"New Riyaz site created at {sitename}", fg="green", bold=True))
+
+
 @contextlib.contextmanager
-def setup_db(tempdir):
-    config.database_path = os.path.join(tempdir, "riyaz.db")
+def setup_db(base_dir):
+    config.database_path = os.path.join(base_dir, "riyaz.db")
     migrate()
 
 
-def setup_assets(tempdir):
-    config.assets_path = os.path.join(tempdir, "assets")
+def setup_assets(base_dir):
+    config.assets_path = os.path.join(base_dir, "assets")
     os.makedirs(config.assets_path, exist_ok=True)
+
+
+def setup_config(base_dir):
+    # TODO: implement this
+    pass
