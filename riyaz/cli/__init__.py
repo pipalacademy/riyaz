@@ -117,11 +117,33 @@ def new_site(path):
     fmt.success(f"New Riyaz site created at {path}")
 
 
-@main.command("import-course")
+@main.command("import-course", short_help="load course into a riyaz site")
 @click.option("-s", "--site", default=Path("."), show_default=True,
-              type=click.Path(path_type=Path))
+              type=click.Path(path_type=Path),
+              help="path to site directory (created with `riyaz new-site`)")
 @click.argument("course_dir", type=click.Path(path_type=Path))
 def import_course(site, course_dir):
+    """Import a course into a Riyaz site.
+
+    COURSE_DIR should be path to a course directory (containing course.yml,
+    modules, authors, etc.)
+
+    \b
+    Example usage with `riyaz new-site`:
+    ```
+    $ riyaz new-site riyaz-school && cd riyaz-school
+    $ ls
+    assets riyaz.db riyaz.yml
+    $ riyaz import-course ../courses/how-to-python
+    ```
+
+    \b
+    Example usage with --site option:
+    ```
+    $ # inside course directory
+    $ riyaz import-course --site ../riyaz-school .
+    ```
+    """
     if not site.is_dir():
         fmt.error(f"'{site}' is not a directory", exit=True)
 
