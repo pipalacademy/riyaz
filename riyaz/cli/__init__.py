@@ -9,7 +9,6 @@ The CLI can run these commands:
                     server
     - `riyaz pull`: Pull a Riyaz course from a remote server
 """
-import contextlib
 import os
 import sys
 import tempfile
@@ -108,7 +107,7 @@ def new_site(path):
     ```
     """
     if path.exists():
-        fmt.error(f"Directory {path} already exists", exit=True, exit_code=1)
+        fmt.error(f"Directory {path} already exists", exit=True)
 
     path.mkdir()
     setup_db(path)
@@ -118,7 +117,46 @@ def new_site(path):
     fmt.success(f"New Riyaz site created at {path}")
 
 
-@contextlib.contextmanager
+@main.command("import-course", short_help="load course into a riyaz site")
+@click.option("-d", "--root-directory", default=Path("."), show_default=True,
+              type=click.Path(path_type=Path),
+              help="path to riyaz root directory (created with `riyaz new-site`)")
+@click.argument("course_dir", type=click.Path(path_type=Path))
+def import_course(root_directory, course_dir):
+    """Import a course into a Riyaz site.
+
+    COURSE_DIR should be path to a course directory (containing course.yml,
+    modules, authors, etc.)
+
+    \b
+    Example usage with `riyaz new-site`:
+    ```
+    $ riyaz new-site riyaz-school && cd riyaz-school
+    $ ls
+    assets riyaz.db riyaz.yml
+    $ riyaz import-course ../courses/how-to-python
+    ```
+
+    \b
+    Example usage with -d option:
+    ```
+    $ # inside course directory
+    $ riyaz import-course -d ../riyaz-school .
+    ```
+    """
+    if not root_directory.is_dir():
+        fmt.error(f"'{root_directory}' is not a directory", exit=True)
+
+    if not course_dir.is_dir():
+        fmt.error(f"'{course_dir}' is not a directory", exit=True)
+
+    # set configuration - database_path, assets_path
+    config.load_config(root_directory / "riyaz.yml")
+    course = CourseLoader(course_dir).load()
+
+    fmt.success(f"Successfully loaded course '{course.title}'")
+
+
 def setup_db(base_dir):
     config.database_path = os.path.join(base_dir, "riyaz.db")
     migrate()
