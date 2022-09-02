@@ -86,6 +86,8 @@ class Document(BaseModel):
         else:
             get_db().update(self._TABLE, where="id=$id", vars={"id": self.id}, **self.dict())
 
+        return self
+
 class Course(Document):
     _TABLE = "course"
 
@@ -228,7 +230,7 @@ class Module(Document):
 
     @classmethod
     def new(cls, course: Course, name: str, title: str, index_: int = 1):
-        return cls(...)
+        return cls(course_id=course.id, name=name, title=title, index_=index_)
 
     def get_lessons(self):
         return Lesson.find_all(module_id=self.id)
