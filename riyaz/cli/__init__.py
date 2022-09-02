@@ -118,11 +118,11 @@ def new_site(path):
 
 
 @main.command("import-course", short_help="load course into a riyaz site")
-@click.option("-s", "--site", default=Path("."), show_default=True,
+@click.option("-d", "--root-directory", default=Path("."), show_default=True,
               type=click.Path(path_type=Path),
-              help="path to site directory (created with `riyaz new-site`)")
+              help="path to riyaz root directory (created with `riyaz new-site`)")
 @click.argument("course_dir", type=click.Path(path_type=Path))
-def import_course(site, course_dir):
+def import_course(root_directory, course_dir):
     """Import a course into a Riyaz site.
 
     COURSE_DIR should be path to a course directory (containing course.yml,
@@ -138,20 +138,20 @@ def import_course(site, course_dir):
     ```
 
     \b
-    Example usage with --site option:
+    Example usage with -d option:
     ```
     $ # inside course directory
-    $ riyaz import-course --site ../riyaz-school .
+    $ riyaz import-course -d ../riyaz-school .
     ```
     """
-    if not site.is_dir():
-        fmt.error(f"'{site}' is not a directory", exit=True)
+    if not root_directory.is_dir():
+        fmt.error(f"'{root_directory}' is not a directory", exit=True)
 
     if not course_dir.is_dir():
         fmt.error(f"'{course_dir}' is not a directory", exit=True)
 
     # set configuration - database_path, assets_path
-    config.load_config(site / "riyaz.yml")
+    config.load_config(root_directory / "riyaz.yml")
     course = CourseLoader(course_dir).load()
 
     fmt.success(f"Successfully loaded course '{course.title}'")
